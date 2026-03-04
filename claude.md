@@ -40,18 +40,18 @@ email-builder/
 │           └── index.js                 # POST → retorna HTML via MJML
 ├── components/
 │   ├── builder/
-│   │   ├── BuilderLayout.jsx            # Estrutura esquerda/direita
+│   │   ├── BuilderLayout.jsx            # Estrutura esquerda/direita + tabs
 │   │   ├── SectionList.jsx              # Lista de seções com controles
 │   │   ├── SectionItem.jsx              # Uma seção com seus componentes
-│   │   ├── ComponentItem.jsx            # Um componente dentro da seção
+│   │   ├── ComponentItem.jsx            # Um componente dentro da seção (renderContent WYSIWYG)
 │   │   ├── ClientRenderer.jsx           # Preview rápido (cliente, sem servidor)
-│   │   ├── PropertiesPanel.jsx          # Painel direito dinâmico
-│   │   └── GlobalConfigPanel.jsx        # Configurações globais (mj-head)
+│   │   ├── PropertiesPanel.jsx          # Painel direito — elemento + coluna + seção (accordion)
+│   │   └── GlobalConfigPanel.jsx        # Configurações globais (mj-head) — default quando nada selecionado
 │   └── properties/
-│       ├── TextProperties.jsx           # Painel de props do mj-text
-│       ├── ImageProperties.jsx          # Painel de props do mj-image
-│       ├── ButtonProperties.jsx         # Painel de props do mj-button
-│       └── DividerProperties.jsx        # Painel de props do mj-divider
+│       ├── TextProperties.jsx           # Props do mj-text
+│       ├── ImageProperties.jsx          # Props do mj-image
+│       ├── ButtonProperties.jsx         # Props do mj-button
+│       └── DividerProperties.jsx        # Props do mj-divider
 ├── store/
 │   └── builderStore.js                  # Zustand — estado central do builder
 ├── lib/
@@ -91,7 +91,7 @@ email-builder/
         columnList: [
           {
             id: String,
-            attributes: Object,  // ex: { "vertical-align": "top" }
+            attributes: Object,  // ex: { "vertical-align": "top", "background-color": "#fff" }
             components: [
               {
                 id: String,
@@ -133,6 +133,9 @@ email-builder/
   moveSectionDown(sectionId),
   updateSectionAttributes(sectionId, attrs),
 
+  // --- Actions de coluna ---
+  updateColumnAttributes(sectionId, columnId, attrs),
+
   // --- Actions de componente ---
   addComponent(sectionId, columnId, type),
   removeComponent(sectionId, columnId, componentId),
@@ -161,7 +164,6 @@ email-builder/
 - Roda **100% no cliente**, sem chamada ao servidor
 - Lê o estado do Zustand e renderiza HTML/CSS simples em um `<iframe>`
 - Atualiza instantaneamente a cada mudança
-- Sempre visível no painel esquerdo do builder
 
 ### Preview Final (aba separada)
 
@@ -169,7 +171,11 @@ email-builder/
 - Faz `POST /api/preview` com o JSON do template
 - O servidor converte via `templateToMjml.js` + `mjml.render()`
 - Retorna HTML compilado e injeta em um `<iframe>`
-- A aba exibe um **indicador visual** (ponto laranja) quando há mudanças não refletidas no preview (`previewOutdated: true`)
+
+### Aba JSON
+
+- Exibe `JSON.stringify(template, null, 2)` em tempo real
+- Útil para depuração e verificar o que será enviado ao MJML
 
 ---
 
@@ -188,12 +194,13 @@ mj-mjml
                     └── mj-text / mj-image / mj-button / mj-divider
 ```
 
-### Atributos por componente (v1)
+### Atributos por componente
 
 **mj-text**
 
-- `font-size`, `color`, `font-family`, `font-weight`
-- `line-height`, `padding`, `align`
+- `font-size`, `color`, `font-family`, `font-weight`, `line-height`
+- `padding`, `padding-top`, `padding-bottom`, `padding-left`, `padding-right`
+- `align`, `text-decoration`, `text-transform`
 - `content` → HTML interno (ex: `<p>Texto</p>`)
 
 **mj-image**
@@ -209,6 +216,26 @@ mj-mjml
 **mj-divider**
 
 - `border-color`, `border-style`, `border-width`, `padding`
+
+**mj-column** (editável via PropertiesPanel ao selecionar elemento)
+
+- `vertical-align`, `background-color`
+
+**mj-section** (editável via PropertiesPanel ao selecionar elemento)
+
+- `background-color`, `padding`
+
+---
+
+## PropertiesPanel — estrutura em accordion
+
+Ao selecionar um elemento, o painel direito exibe 3 seções em accordion:
+
+1. **Elemento** — propriedades específicas do tipo (TextProperties, ImageProperties, etc.)
+2. **Coluna** — `vertical-align`, `background-color`
+3. **Seção** — `background-color`, `padding`
+
+Quando nada está selecionado → exibe **GlobalConfigPanel** por padrão.
 
 ---
 
@@ -229,21 +256,19 @@ mj-mjml
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  📧 Nome do template     [⚙️ Config Global]  [💾 Salvar]  [📤 Exportar ▾] │
+│  📧 Nome do template                          [💾 Salvar]        │
+├──────────────────────────────────────────────────────────────────┤
+│  [Editor] [Preview Rápido] [Preview Final] [JSON]                │
 ├─────────────────────────────────┬────────────────────────────────┤
-│  [Preview Rápido] [Preview Final 🟠]                             │
-│                                 │                                │
-│   <iframe ClientRenderer />     │  PropertiesPanel               │
-│                                 │  (muda conforme seleção)       │
+│                                 │  PropertiesPanel (accordion)   │
 │   ┌─────────────────────────┐   │                                │
-│   │[↑][↓][🗑️] Seção 1       │   │  — Nada selecionado:          │
-│   │  col1  | col2           │   │    "Clique em um elemento"     │
-│   │  [comp🟠] [comp]        │   │                                │
-│   │  [+ componente]         │   │  — Elemento selecionado:       │
-│   └─────────────────────────┘   │    tipo + [↑][↓][🗑️]          │
-│                                 │    propriedades do tipo        │
-│   [+ Adicionar seção]           │    (Fase 3)                    │
-│                                 │                                │
+│   │[↑][↓][🗑️] Seção 1       │   │  Sem seleção → GlobalConfig   │
+│   │  col1  | col2           │   │                                │
+│   │  [comp🟠] [comp]        │   │  Com elemento selecionado:     │
+│   │  [+ componente]         │   │  ▼ Elemento (props do tipo)    │
+│   └─────────────────────────┘   │  ▶ Coluna (vertical-align…)   │
+│                                 │  ▶ Seção (bg, padding…)       │
+│   [+ Adicionar seção]           │                                │
 └─────────────────────────────────┴────────────────────────────────┘
 ```
 
@@ -257,9 +282,8 @@ mj-mjml
 - **Zustand** — usar subscriptions seletivas para evitar re-renders desnecessários
 - **IDs** — gerar com `crypto.randomUUID()` no cliente
 - **Preview Final** — nunca chamar automaticamente, sempre sob demanda do usuário
-- **Indicador de desatualizado** — `previewOutdated` no store controla o ponto laranja na aba
 - **Seleção** — clicar em um componente usa `e.stopPropagation()` para não propagar ao `SectionItem`
-- **PropertiesPanel** — exibe apenas propriedades de elementos selecionados (seções não aparecem aqui)
+- **PropertiesPanel** — ao selecionar elemento: mostra props do elemento + coluna + seção via accordion; sem seleção: mostra GlobalConfigPanel
 - **Deleção com confirmação** — `SectionItem` e `PropertiesPanel` usam `AlertDialog` antes de remover
 - **Highlight de seleção** — seção: `ring-2 ring-blue-500`; componente: `ring-2 ring-inset ring-orange-400`
 
@@ -269,7 +293,7 @@ mj-mjml
 
 - [x] **Fase 1** — Fundação: types (JSDoc), builderStore, templateToMjml, /api/preview, ClientRenderer
 - [x] **Fase 2** — Builder UI: SectionList, SectionItem, ComponentItem, seleção, PropertiesPanel base
-- [ ] **Fase 3** — Painéis de propriedades: um painel por tipo + GlobalConfigPanel
+- [x] **Fase 3** — Painéis de propriedades: TextProperties, ImageProperties, ButtonProperties, DividerProperties, GlobalConfigPanel
 - [ ] **Fase 4** — Persistência: CRUD MongoDB, página de listagem, exportar HTML/MJML
 - [ ] **Fase 5** — Administrativo: pages/admin com gestão de templates
 

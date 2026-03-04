@@ -19,6 +19,7 @@ export default function BuilderLayout() {
     { key: "editor", label: "Editor" },
     { key: "quick", label: "Preview Rápido" },
     { key: "final", label: "Preview Final" },
+    { key: "json", label: "JSON" },
   ];
 
   async function loadFinalPreview() {
@@ -70,6 +71,12 @@ export default function BuilderLayout() {
           </ButtonGroup>
 
           <div className="flex-1 overflow-auto">
+            {activeTab === "json" && (
+              <pre className="h-full overflow-auto rounded-md bg-gray-900 p-4 text-xs text-green-400 font-mono whitespace-pre">
+                {JSON.stringify(template, null, 2)}
+              </pre>
+            )}
+
             {activeTab === "editor" && <SectionList />}
 
             {activeTab === "quick" && (

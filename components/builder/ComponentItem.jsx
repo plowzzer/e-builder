@@ -20,6 +20,8 @@ function renderContent(component) {
             lineHeight: a["line-height"] || "1.5",
             padding: a.padding || "10px",
             textAlign: a.align || "left",
+            textDecoration: a["text-decoration"] || undefined,
+            textTransform: a["text-transform"] || undefined,
           }}
           dangerouslySetInnerHTML={{ __html: component.content || "<p>Texto aqui</p>" }}
         />

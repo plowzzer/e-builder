@@ -108,6 +108,27 @@ const useBuilderStore = create((set, get) => ({
       previewOutdated: true,
     })),
 
+  updateColumnAttributes: (sectionId, columnId, attrs) =>
+    set((state) => ({
+      template: {
+        ...state.template,
+        sections: state.template.sections.map((s) =>
+          s.id === sectionId
+            ? {
+                ...s,
+                columnList: s.columnList.map((col) =>
+                  col.id === columnId
+                    ? { ...col, attributes: { ...col.attributes, ...attrs } }
+                    : col
+                ),
+              }
+            : s
+        ),
+      },
+      isDirty: true,
+      previewOutdated: true,
+    })),
+
   // --- Actions de componente ---
   addComponent: (sectionId, columnId, type) =>
     set((state) => {
