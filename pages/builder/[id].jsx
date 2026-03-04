@@ -1,6 +1,8 @@
 import BuilderLayout from "@/components/builder/BuilderLayout";
 import { Button } from "@/components/ui/button";
-import { Mail, Save } from "lucide-react";
+import { parseMjml } from "@/lib/parseMjml";
+import { Mail, Save, Upload } from "lucide-react";
+import { useRef } from "react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import useBuilderStore from "../../store/builderStore";
@@ -11,6 +13,8 @@ export default function BuilderPage() {
   const [templateName, setTemplateName] = useState("Sem título");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const fileInputRef = useRef(null);
 
   const isDirty = useBuilderStore((s) => s.isDirty);
   const loadTemplate = useBuilderStore((s) => s.loadTemplate);
@@ -43,6 +47,27 @@ export default function BuilderPage() {
       .catch((err) => console.error("Erro ao carregar template:", err))
       .finally(() => setLoading(false));
   }, [id]);
+
+  function handleImport() {
+    fileInputRef.current?.click();
+  }
+
+  function handleFileChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = parseMjml(ev.target.result);
+        loadTemplate(parsed);
+        setTemplateName(file.name.replace(/\.mjml$/i, ""));
+      } catch (err) {
+        alert("Erro ao importar MJML: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -101,8 +126,17 @@ export default function BuilderPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button onClick={handleSave}
-              disabled={saving}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".mjml"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <Button variant="outline" onClick={handleImport}>
+              <Upload size={14} /> Importar .mjml
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
               <Save size={14} /> {saving ? "Salvando..." : "Salvar"}
             </Button>
           </div>
