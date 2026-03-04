@@ -294,8 +294,9 @@ Quando nada está selecionado → exibe **GlobalConfigPanel** por padrão.
 - [x] **Fase 1** — Fundação: types (JSDoc), builderStore, templateToMjml, /api/preview, ClientRenderer
 - [x] **Fase 2** — Builder UI: SectionList, SectionItem, ComponentItem, seleção, PropertiesPanel base
 - [x] **Fase 3** — Painéis de propriedades: TextProperties, ImageProperties, ButtonProperties, DividerProperties, GlobalConfigPanel
-- [ ] **Fase 4** — Persistência: CRUD MongoDB, página de listagem, exportar HTML/MJML
-- [ ] **Fase 5** — Administrativo: pages/admin com gestão de templates
+- [ ] **Fase 4** — Criar um importador de .mjml para esses templates
+- [ ] **Fase 5** — Persistência: CRUD MongoDB, página de listagem, exportar HTML/MJML
+- [ ] **Fase 6** — Administrativo: pages/admin com gestão de templates
 
 ---
 
