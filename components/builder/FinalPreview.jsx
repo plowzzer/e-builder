@@ -1,7 +1,8 @@
 import { useState } from "react";
 import useBuilderStore from "../../store/builderStore";
+import CodePreview from "./CodePreview";
 
-export default function FinalPreview() {
+export default function FinalPreview({ viewport = "desktop" }) {
   const [finalHtml, setFinalHtml] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -36,14 +37,17 @@ export default function FinalPreview() {
 
       {finalHtml ? (
         <div className="flex h-full gap-2">
-          <iframe
-            srcDoc={finalHtml}
-            title="Preview Final"
-            className="h-full w-1/2 border-0 rounded-md bg-white"
-          />
-          <pre className="h-full w-1/2 overflow-auto rounded-md bg-gray-900 p-4 text-xs text-green-400 font-mono whitespace-pre">
-            {finalHtml}
-          </pre>
+          <div className={`h-full w-1/2 flex ${viewport === "mobile" ? "justify-center items-start overflow-auto" : ""}`}>
+            <iframe
+              srcDoc={finalHtml}
+              title="Preview Final"
+              className="border-0 rounded-xl bg-white h-full"
+              style={viewport === "mobile" ? { width: "375px", minHeight: "600px", flexShrink: 0 } : { width: "100%" }}
+            />
+          </div>
+          <div className="h-full w-1/2 ">
+            <CodePreview code={finalHtml} />
+          </div>
         </div>
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-3">

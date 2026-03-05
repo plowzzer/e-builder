@@ -12,11 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useBuilderStore from "../../store/builderStore";
 import ButtonProperties from "../properties/ButtonProperties";
 import DividerProperties from "../properties/DividerProperties";
 import ImageProperties from "../properties/ImageProperties";
+import TableProperties from "../properties/TableProperties";
 import TextProperties from "../properties/TextProperties";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 import { Field, FieldLabel } from "../ui/field";
@@ -27,6 +28,7 @@ const TYPE_LABELS = {
   "mj-image": "Imagem",
   "mj-button": "Botão",
   "mj-divider": "Divisor",
+  "mj-table": "Tabela",
 };
 
 const PANELS = {
@@ -34,18 +36,23 @@ const PANELS = {
   "mj-image": ImageProperties,
   "mj-button": ButtonProperties,
   "mj-divider": DividerProperties,
+  "mj-table": TableProperties,
 };
 
-const labelCls = "block text-xs font-medium text-gray-500 mb-1";
 const sectionLabelCls = "text-[10px] font-semibold text-gray-400 uppercase tracking-wide";
 
 export default function PropertiesPanel() {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [openAccordion, setOpenAccordion] = useState("component");
 
   const template = useBuilderStore((s) => s.template);
   const selectedSectionId = useBuilderStore((s) => s.selectedSectionId);
   const selectedColumnId = useBuilderStore((s) => s.selectedColumnId);
   const selectedComponentId = useBuilderStore((s) => s.selectedComponentId);
+
+  useEffect(() => {
+    if (selectedComponentId) setOpenAccordion("component");
+  }, [selectedComponentId]);
   const removeComponent = useBuilderStore((s) => s.removeComponent);
   const moveComponentUp = useBuilderStore((s) => s.moveComponentUp);
   const moveComponentDown = useBuilderStore((s) => s.moveComponentDown);
@@ -151,7 +158,7 @@ export default function PropertiesPanel() {
         </header>
 
         <div className="flex-1 overflow-auto">
-          <Accordion type="single" collapsible>
+          <Accordion type="single" collapsible value={openAccordion} onValueChange={setOpenAccordion}>
             <AccordionItem value="section" className="border-b border-gray-100">
               <AccordionTrigger className="px-4">Seção</AccordionTrigger>
               <AccordionContent>
@@ -223,6 +230,14 @@ export default function PropertiesPanel() {
                         onChange={(e) => setColAttr("background-color", e.target.value)}
                       />
                     </div>
+                  </Field>
+                  <Field>
+                    <FieldLabel>Padding</FieldLabel>
+                    <Input
+                      value={colAttrs.padding || ""}
+                      placeholder="ex: 20px"
+                      onChange={(e) => setColAttr("padding", e.target.value)}
+                    />
                   </Field>
                 </div>
               </AccordionContent>

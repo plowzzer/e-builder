@@ -100,7 +100,8 @@ export default function ButtonProperties({ attrs, content, setAttr, setContent }
           <div>
             <label className={labelCls}>Tamanho fonte</label>
             <Input
-              value={attrs["font-size"] || "14px"}
+              value={attrs["font-size"] || ""}
+              placeholder="ex: 14px"
               onChange={(e) => setAttr("font-size", e.target.value)}
             />
           </div>
@@ -123,7 +124,8 @@ export default function ButtonProperties({ attrs, content, setAttr, setContent }
           <div>
             <label className={labelCls}>Border radius</label>
             <Input
-              value={attrs["border-radius"] || "4px"}
+              value={attrs["border-radius"] || ""}
+              placeholder="ex: 4px"
               onChange={(e) => setAttr("border-radius", e.target.value)}
             />
           </div>
@@ -139,14 +141,16 @@ export default function ButtonProperties({ attrs, content, setAttr, setContent }
           <div>
             <label className={labelCls}>Padding externo</label>
             <Input
-              value={attrs.padding || "10px 25px"}
+              value={attrs.padding || ""}
+              placeholder="ex: 10px 25px"
               onChange={(e) => setAttr("padding", e.target.value)}
             />
           </div>
           <div>
             <label className={labelCls}>Padding interno</label>
             <Input
-              value={attrs["inner-padding"] || "10px 25px"}
+              value={attrs["inner-padding"] || ""}
+              placeholder="ex: 10px 25px"
               onChange={(e) => setAttr("inner-padding", e.target.value)}
             />
           </div>

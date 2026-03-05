@@ -148,12 +148,25 @@ const useBuilderStore = create((set, get) => ({
           "border-width": "1px",
           padding: "10px 0",
         },
+        "mj-table": {
+          padding: "10px",
+          border: "1px solid #cccccc",
+          cellpadding: "4",
+          cellspacing: "0",
+        },
       };
       const newComponent = {
         id: crypto.randomUUID(),
         type,
         attributes: defaultAttributes[type] || {},
-        content: type === "mj-text" ? "<p>Texto aqui</p>" : type === "mj-button" ? "Clique aqui" : "",
+        content:
+          type === "mj-text"
+            ? "<p>Texto aqui</p>"
+            : type === "mj-button"
+            ? "Clique aqui"
+            : type === "mj-table"
+            ? "<tr>\n  <th>Coluna 1</th>\n  <th>Coluna 2</th>\n  <th>Coluna 3</th>\n</tr>\n<tr>\n  <td>Dado 1</td>\n  <td>Dado 2</td>\n  <td>Dado 3</td>\n</tr>"
+            : "",
       };
       return {
         template: {

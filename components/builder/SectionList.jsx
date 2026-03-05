@@ -41,18 +41,20 @@ function InsertSectionButton({ onAdd }) {
   );
 }
 
-export default function SectionList() {
+export default function SectionList({ viewport = "desktop" }) {
   const sections = useBuilderStore((s) => s.template.sections);
   const globalConfig = useBuilderStore((s) => s.template.globalConfig);
   const addSection = useBuilderStore((s) => s.addSection);
   const clearSelection = useBuilderStore((s) => s.clearSelection);
+
+  const canvasWidth = viewport === "mobile" ? "375px" : (globalConfig.containerWidth || "600px");
 
   return (
     <main className="flex flex-col items-center min-h-full p-8 gap-4" onClick={clearSelection}>
       {/* Canvas centralizado — largura do email */}
       <div
         style={{
-          width: globalConfig.containerWidth || "600px",
+          width: canvasWidth,
           backgroundColor: globalConfig.backgroundColor || "#ffffff",
           fontFamily: globalConfig.fontFamily || "Arial, sans-serif",
         }}

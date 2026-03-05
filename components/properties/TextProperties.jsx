@@ -82,7 +82,8 @@ export default function TextProperties({ attrs, content, setAttr, setContent }) 
           <Field>
             <FieldLabel>Tamanho</FieldLabel>
             <Input
-              value={attrs["font-size"] || "14px"}
+              value={attrs["font-size"] || ""}
+              placeholder="ex: 14px"
               onChange={(e) => setAttr("font-size", e.target.value)}
             />
           </Field>
@@ -107,7 +108,8 @@ export default function TextProperties({ attrs, content, setAttr, setContent }) 
           <Field>
             <FieldLabel>Line height</FieldLabel>
             <Input
-              value={attrs["line-height"] || "1.5"}
+              value={attrs["line-height"] || ""}
+              placeholder="ex: 1.5"
               onChange={(e) => setAttr("line-height", e.target.value)}
             />
           </Field>
@@ -120,7 +122,8 @@ export default function TextProperties({ attrs, content, setAttr, setContent }) 
         <Field>
           <FieldLabel>Fonte</FieldLabel>
           <Input
-            value={attrs["font-family"] || "Arial, sans-serif"}
+            value={attrs["font-family"] || ""}
+            placeholder="ex: Arial, sans-serif"
             onChange={(e) => setAttr("font-family", e.target.value)}
           />
         </Field>
@@ -177,7 +180,8 @@ export default function TextProperties({ attrs, content, setAttr, setContent }) 
         <Field>
           <FieldLabel>Padding</FieldLabel>
           <Input
-            value={attrs.padding || "16px 16px 16px 16px"}
+            value={attrs.padding || ""}
+            placeholder="ex: 16px"
             onChange={(e) => setAttr("padding", e.target.value)}
           />
           <FieldDescription>Ex: 10px, 10px 5px, 10px 5px 15px, 10px 5px 15px 20px</FieldDescription>

@@ -47,14 +47,16 @@ export default function DividerProperties({ attrs, setAttr }) {
       <div>
         <label className={labelCls}>Espessura</label>
         <Input
-          value={attrs["border-width"] || "1px"}
+          value={attrs["border-width"] || ""}
+          placeholder="ex: 1px"
           onChange={(e) => setAttr("border-width", e.target.value)}
         />
       </div>
       <div>
         <label className={labelCls}>Padding</label>
         <Input
-          value={attrs.padding || "10px 0"}
+          value={attrs.padding || ""}
+          placeholder="ex: 10px 0"
           onChange={(e) => setAttr("padding", e.target.value)}
         />
       </div>

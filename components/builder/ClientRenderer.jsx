@@ -5,7 +5,7 @@ import useBuilderStore from "../../store/builderStore";
  * Preview rápido — renderiza o template no cliente sem chamar o servidor.
  * Usa HTML/CSS simples dentro de um iframe.
  */
-export default function ClientRenderer() {
+export default function ClientRenderer({ viewport = "desktop" }) {
   const template = useBuilderStore((s) => s.template);
   const iframeRef = useRef(null);
 
@@ -50,13 +50,18 @@ export default function ClientRenderer() {
       doc.write(html);
       doc.close();
     }
-  }, [template]);
+  }, [template, viewport]);
+
+  const isMobile = viewport === "mobile";
 
   return (
-    <iframe
-      ref={iframeRef}
-      title="Preview rápido"
-      className="w-full h-full border-0"
-    />
+    <div className={`h-full flex ${isMobile ? "justify-center items-start overflow-auto" : ""}`}>
+      <iframe
+        ref={iframeRef}
+        title="Preview rápido"
+        className="border-0 h-full"
+        style={isMobile ? { width: "375px", minHeight: "600px", flexShrink: 0 } : { width: "100%" }}
+      />
+    </div>
   );
 }

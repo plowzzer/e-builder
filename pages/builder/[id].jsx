@@ -1,7 +1,8 @@
 import BuilderLayout from "@/components/builder/BuilderLayout";
 import { Button } from "@/components/ui/button";
 import { parseMjml } from "@/lib/parseMjml";
-import { Mail, Save, Upload } from "lucide-react";
+import { templateToMjml } from "@/lib/templateToMjml";
+import { Download, Mail, Save, Upload } from "lucide-react";
 import { useRef } from "react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -47,6 +48,17 @@ export default function BuilderPage() {
       .catch((err) => console.error("Erro ao carregar template:", err))
       .finally(() => setLoading(false));
   }, [id]);
+
+  function handleExportMjml() {
+    const mjml = templateToMjml(template);
+    const blob = new Blob([mjml], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${templateName || "template"}.mjml`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   function handleImport() {
     fileInputRef.current?.click();
@@ -133,6 +145,9 @@ export default function BuilderPage() {
               className="hidden"
               onChange={handleFileChange}
             />
+            <Button variant="outline" onClick={handleExportMjml}>
+              <Download size={14} /> Exportar .mjml
+            </Button>
             <Button variant="outline" onClick={handleImport}>
               <Upload size={14} /> Importar .mjml
             </Button>

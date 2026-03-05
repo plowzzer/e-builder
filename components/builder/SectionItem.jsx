@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { ArrowDown, ArrowUp, Image, Minus, Plus, SquarePlus, TextCursor, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Image, Minus, Plus, SquarePlus, Table, TextCursor, Trash2 } from "lucide-react";
 import { useState } from "react";
 import useBuilderStore from "../../store/builderStore";
 import ComponentItem from "./ComponentItem";
@@ -22,6 +22,7 @@ const COMPONENT_TYPES = [
   { type: "mj-image", label: "Imagem", icon: <Image size={16} /> },
   { type: "mj-button", label: "Botão", icon: <SquarePlus size={16} /> },
   { type: "mj-divider", label: "Divisor", icon: <Minus size={16} /> },
+  { type: "mj-table", label: "Tabela", icon: <Table size={16} /> },
 ];
 
 /**
@@ -75,8 +76,24 @@ export default function SectionItem({ section, isFirst, isLast }) {
         <div
           style={{ display: "grid", gridTemplateColumns: `repeat(${section.columnList.length}, 1fr)` }}
         >
-          {section.columnList.map((col) => (
-            <div key={col.id} style={{ verticalAlign: "top" }} className="relative">
+          {section.columnList.map((col) => {
+            const colAttrs = col.attributes || {};
+            const justifyContent =
+              colAttrs["vertical-align"] === "middle" ? "center" :
+              colAttrs["vertical-align"] === "bottom" ? "flex-end" :
+              "flex-start";
+            return (
+            <div
+              key={col.id}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent,
+                backgroundColor: colAttrs["background-color"] || "transparent",
+                padding: colAttrs.padding || undefined,
+              }}
+              className="relative"
+            >
               {/* Componentes da coluna */}
               {col.components.map((comp, idx) => (
                 <ComponentItem
@@ -129,7 +146,8 @@ export default function SectionItem({ section, isFirst, isLast }) {
               )}
 
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

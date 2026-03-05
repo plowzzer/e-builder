@@ -58,7 +58,8 @@ export default function ImageProperties({ attrs, setAttr }) {
         <div>
           <label className={labelCls}>Largura</label>
           <Input
-            value={attrs.width || "100%"}
+            value={attrs.width || ""}
+            placeholder="ex: 100%"
             onChange={(e) => setAttr("width", e.target.value)}
           />
         </div>
@@ -87,14 +88,16 @@ export default function ImageProperties({ attrs, setAttr }) {
         <div>
           <label className={labelCls}>Padding</label>
           <Input
-            value={attrs.padding || "10px"}
+            value={attrs.padding || ""}
+            placeholder="ex: 10px"
             onChange={(e) => setAttr("padding", e.target.value)}
           />
         </div>
         <div>
           <label className={labelCls}>Border radius</label>
           <Input
-            value={attrs["border-radius"] || "0"}
+            value={attrs["border-radius"] || ""}
+            placeholder="ex: 4px"
             onChange={(e) => setAttr("border-radius", e.target.value)}
           />
         </div>

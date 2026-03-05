@@ -36,10 +36,10 @@ function renderContent(component) {
               alt={a.alt || ""}
               style={{
                 maxWidth: "100%",
-                width: a.width || "100%",
+                width: a.width || undefined,
                 borderRadius: a["border-radius"] || "0",
                 display: "block",
-                margin: "0 auto",
+                margin: a.align === "left" ? "0" : a.align === "right" ? "0 0 0 auto" : "0 auto",
               }}
             />
           ) : (
@@ -92,6 +92,27 @@ function renderContent(component) {
               borderTop: `${a["border-width"] || "1px"} ${a["border-style"] || "solid"} ${a["border-color"] || "#cccccc"}`,
               margin: 0,
             }}
+          />
+        </div>
+      );
+
+    case "mj-table":
+      return (
+        <div style={{ padding: a.padding || "10px", textAlign: a.align || "left" }}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              fontSize: a["font-size"] || "14px",
+              color: a.color || "#000000",
+              fontFamily: a["font-family"] || "Arial, sans-serif",
+              lineHeight: a["line-height"] || "1.5",
+              border: a.border || undefined,
+              tableLayout: a["table-layout"] || "auto",
+            }}
+            cellPadding={a.cellpadding || "4"}
+            cellSpacing={a.cellspacing || "0"}
+            dangerouslySetInnerHTML={{ __html: component.content || "" }}
           />
         </div>
       );

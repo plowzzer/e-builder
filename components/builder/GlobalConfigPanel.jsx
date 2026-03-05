@@ -36,7 +36,8 @@ export default function GlobalConfigPanel() {
       <div>
         <label className={labelCls}>Fonte padrão</label>
         <Input
-          value={globalConfig.fontFamily || "Arial, sans-serif"}
+          value={globalConfig.fontFamily || ""}
+          placeholder="ex: Arial, sans-serif"
           onChange={(e) => set("fontFamily", e.target.value)}
         />
       </div>
@@ -44,7 +45,8 @@ export default function GlobalConfigPanel() {
       <div>
         <label className={labelCls}>Largura do container</label>
         <Input
-          value={globalConfig.containerWidth || "600px"}
+          value={globalConfig.containerWidth || ""}
+          placeholder="ex: 600px"
           onChange={(e) => set("containerWidth", e.target.value)}
         />
       </div>
