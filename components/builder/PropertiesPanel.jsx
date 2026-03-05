@@ -19,6 +19,7 @@ import DividerProperties from "../properties/DividerProperties";
 import ImageProperties from "../properties/ImageProperties";
 import TableProperties from "../properties/TableProperties";
 import TextProperties from "../properties/TextProperties";
+import SocialProperties from "../properties/SocialProperties";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 import { Field, FieldLabel } from "../ui/field";
 import GlobalConfigPanel from "./GlobalConfigPanel";
@@ -29,6 +30,7 @@ const TYPE_LABELS = {
   "mj-button": "Botão",
   "mj-divider": "Divisor",
   "mj-table": "Tabela",
+  "mj-social": "Social",
 };
 
 const PANELS = {
@@ -37,6 +39,7 @@ const PANELS = {
   "mj-button": ButtonProperties,
   "mj-divider": DividerProperties,
   "mj-table": TableProperties,
+  "mj-social": SocialProperties,
 };
 
 const sectionLabelCls = "text-[10px] font-semibold text-gray-400 uppercase tracking-wide";
@@ -52,7 +55,9 @@ export default function PropertiesPanel() {
 
   useEffect(() => {
     if (selectedComponentId) setOpenAccordion("component");
-  }, [selectedComponentId]);
+    else if (selectedColumnId) setOpenAccordion("column");
+    else if (selectedSectionId) setOpenAccordion("section");
+  }, [selectedSectionId, selectedColumnId, selectedComponentId]);
   const removeComponent = useBuilderStore((s) => s.removeComponent);
   const moveComponentUp = useBuilderStore((s) => s.moveComponentUp);
   const moveComponentDown = useBuilderStore((s) => s.moveComponentDown);
@@ -66,16 +71,18 @@ export default function PropertiesPanel() {
   let isFirst = false;
   let isLast = false;
 
-  if (selectedSectionId && selectedColumnId && selectedComponentId) {
+  if (selectedSectionId) {
     section = template.sections.find((s) => s.id === selectedSectionId) || null;
-    column = section?.columnList.find((c) => c.id === selectedColumnId) || null;
-    if (column) {
-      const idx = column.components.findIndex((c) => c.id === selectedComponentId);
-      if (idx !== -1) {
-        component = column.components[idx];
-        isFirst = idx === 0;
-        isLast = idx === column.components.length - 1;
-      }
+  }
+  if (section && selectedColumnId) {
+    column = section.columnList.find((c) => c.id === selectedColumnId) || null;
+  }
+  if (column && selectedComponentId) {
+    const idx = column.components.findIndex((c) => c.id === selectedComponentId);
+    if (idx !== -1) {
+      component = column.components[idx];
+      isFirst = idx === 0;
+      isLast = idx === column.components.length - 1;
     }
   }
 
@@ -98,7 +105,7 @@ export default function PropertiesPanel() {
   }
 
   // Nada selecionado → GlobalConfigPanel
-  if (!component) {
+  if (!selectedSectionId) {
     return (
       <div className="h-full flex flex-col overflow-hidden">
         <div className="px-4 py-3 border-b border-gray-200 shrink-0">
@@ -111,50 +118,54 @@ export default function PropertiesPanel() {
     );
   }
 
-  const Panel = PANELS[component.type];
+  const Panel = component ? PANELS[component.type] : null;
   const colAttrs = column?.attributes || {};
   const secAttrs = section?.attributes || {};
+
+  let headerLabel = "Seção";
+  if (component) headerLabel = TYPE_LABELS[component.type] || component.type;
+  else if (column) headerLabel = "Coluna";
 
   return (
     <>
       <div className="h-full flex flex-col overflow-hidden">
         {/* Header — tipo + ações */}
         <header className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white shrink-0">
-          <span className="text-sm font-medium text-gray-700">
-            {TYPE_LABELS[component.type] || component.type}
-          </span>
+          <span className="text-sm font-medium text-gray-700">{headerLabel}</span>
 
-          <div className="flex items-center gap-0.5">
-            <Button
-              variant="ghost"
-              size="icon"
-              disabled={isFirst}
-              onClick={() => moveComponentUp(selectedSectionId, selectedColumnId, selectedComponentId)}
-              className="h-7 w-7 disabled:opacity-30"
-              title="Mover para cima"
-            >
-              <ArrowUp size={14} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              disabled={isLast}
-              onClick={() => moveComponentDown(selectedSectionId, selectedColumnId, selectedComponentId)}
-              className="h-7 w-7 disabled:opacity-30"
-              title="Mover para baixo"
-            >
-              <ArrowDown size={14} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setConfirmDelete(true)}
-              className="h-7 w-7 text-red-400 hover:text-red-600 hover:bg-red-50"
-              title="Remover elemento"
-            >
-              <Trash2 size={14} />
-            </Button>
-          </div>
+          {component && (
+            <div className="flex items-center gap-0.5">
+              <Button
+                variant="ghost"
+                size="icon"
+                disabled={isFirst}
+                onClick={() => moveComponentUp(selectedSectionId, selectedColumnId, selectedComponentId)}
+                className="h-7 w-7 disabled:opacity-30"
+                title="Mover para cima"
+              >
+                <ArrowUp size={14} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                disabled={isLast}
+                onClick={() => moveComponentDown(selectedSectionId, selectedColumnId, selectedComponentId)}
+                className="h-7 w-7 disabled:opacity-30"
+                title="Mover para baixo"
+              >
+                <ArrowDown size={14} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setConfirmDelete(true)}
+                className="h-7 w-7 text-red-400 hover:text-red-600 hover:bg-red-50"
+                title="Remover elemento"
+              >
+                <Trash2 size={14} />
+              </Button>
+            </div>
+          )}
         </header>
 
         <div className="flex-1 overflow-auto">
@@ -193,72 +204,85 @@ export default function PropertiesPanel() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="column" className="border-b border-gray-100">
-              <AccordionTrigger className="px-4">Coluna</AccordionTrigger>
-              <AccordionContent>
-                {/* Propriedades da coluna */}
-                <div className="px-4 py-4 space-y-2.5">
-                  <p className={sectionLabelCls}>Coluna</p>
-                  <Field>
-                    <FieldLabel>Alinhamento vertical</FieldLabel>
-                    <Select
-                      value={colAttrs["vertical-align"] || "top"}
-                      onValueChange={(v) => setColAttr("vertical-align", v)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="top">Top</SelectItem>
-                        <SelectItem value="middle">Middle</SelectItem>
-                        <SelectItem value="bottom">Bottom</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                  <Field>
-                    <FieldLabel>Cor de fundo</FieldLabel>
-                    <div className="flex gap-1.5 items-center">
+            {column && (
+              <AccordionItem value="column" className="border-b border-gray-100">
+                <AccordionTrigger className="px-4">Coluna</AccordionTrigger>
+                <AccordionContent>
+                  {/* Propriedades da coluna */}
+                  <div className="px-4 py-4 space-y-2.5">
+                    <p className={sectionLabelCls}>Coluna</p>
+                    {section && section.columnList.length > 1 && (
+                      <Field>
+                        <FieldLabel>Largura</FieldLabel>
+                        <Input
+                          value={colAttrs.width || ""}
+                          placeholder="ex: 200px ou 30%"
+                          onChange={(e) => setColAttr("width", e.target.value)}
+                        />
+                      </Field>
+                    )}
+                    <Field>
+                      <FieldLabel>Alinhamento vertical</FieldLabel>
+                      <Select
+                        value={colAttrs["vertical-align"] || "top"}
+                        onValueChange={(v) => setColAttr("vertical-align", v)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="top">Top</SelectItem>
+                          <SelectItem value="middle">Middle</SelectItem>
+                          <SelectItem value="bottom">Bottom</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field>
+                      <FieldLabel>Cor de fundo</FieldLabel>
+                      <div className="flex gap-1.5 items-center">
+                        <Input
+                          type="color"
+                          className="h-9 w-9 cursor-pointer rounded-md border border-input p-1 shrink-0"
+                          value={colAttrs["background-color"] || "#ffffff"}
+                          onChange={(e) => setColAttr("background-color", e.target.value)}
+                        />
+                        <Input
+                          value={colAttrs["background-color"] || ""}
+                          placeholder="ex: #ffffff"
+                          onChange={(e) => setColAttr("background-color", e.target.value)}
+                        />
+                      </div>
+                    </Field>
+                    <Field>
+                      <FieldLabel>Padding</FieldLabel>
                       <Input
-                        type="color"
-                        className="h-9 w-9 cursor-pointer rounded-md border border-input p-1 shrink-0"
-                        value={colAttrs["background-color"] || "#ffffff"}
-                        onChange={(e) => setColAttr("background-color", e.target.value)}
+                        value={colAttrs.padding || ""}
+                        placeholder="ex: 20px"
+                        onChange={(e) => setColAttr("padding", e.target.value)}
                       />
-                      <Input
-                        value={colAttrs["background-color"] || ""}
-                        placeholder="ex: #ffffff"
-                        onChange={(e) => setColAttr("background-color", e.target.value)}
-                      />
-                    </div>
-                  </Field>
-                  <Field>
-                    <FieldLabel>Padding</FieldLabel>
-                    <Input
-                      value={colAttrs.padding || ""}
-                      placeholder="ex: 20px"
-                      onChange={(e) => setColAttr("padding", e.target.value)}
-                    />
-                  </Field>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
+                    </Field>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
 
-            <AccordionItem value="component" className="border-b border-gray-100">
-              <AccordionTrigger className="px-4">Elemento</AccordionTrigger>
-              <AccordionContent>
-                <div className="px-4 pb-4pt-4 space-y-2.5">
-                  {/* Propriedades do elemento */}
-                  {Panel && (
-                    <Panel
-                      attrs={component.attributes}
-                      content={component.content}
-                      setAttr={setAttr}
-                      setContent={setContent}
-                    />
-                  )}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
+            {component && (
+              <AccordionItem value="component" className="border-b border-gray-100">
+                <AccordionTrigger className="px-4">Elemento</AccordionTrigger>
+                <AccordionContent>
+                  <div className="px-4 pb-4 pt-4 space-y-2.5">
+                    {Panel && (
+                      <Panel
+                        attrs={component.attributes}
+                        content={component.content}
+                        setAttr={setAttr}
+                        setContent={setContent}
+                      />
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
           </Accordion>
         </div>
       </div>

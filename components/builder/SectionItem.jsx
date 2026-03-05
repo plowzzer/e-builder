@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { ArrowDown, ArrowUp, Image, Minus, Plus, SquarePlus, Table, TextCursor, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Image, Minus, Plus, Share2, SquarePlus, Table, TextCursor, Trash2 } from "lucide-react";
 import { useState } from "react";
 import useBuilderStore from "../../store/builderStore";
 import ComponentItem from "./ComponentItem";
@@ -23,6 +23,7 @@ const COMPONENT_TYPES = [
   { type: "mj-button", label: "Botão", icon: <SquarePlus size={16} /> },
   { type: "mj-divider", label: "Divisor", icon: <Minus size={16} /> },
   { type: "mj-table", label: "Tabela", icon: <Table size={16} /> },
+  { type: "mj-social", label: "Social", icon: <Share2 size={16} /> },
 ];
 
 /**
@@ -30,27 +31,43 @@ const COMPONENT_TYPES = [
  */
 export default function SectionItem({ section, isFirst, isLast }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [hoveredColumnId, setHoveredColumnId] = useState(null);
+  const [isSectionHovered, setIsSectionHovered] = useState(false);
 
   const moveSectionUp = useBuilderStore((s) => s.moveSectionUp);
   const moveSectionDown = useBuilderStore((s) => s.moveSectionDown);
   const removeSection = useBuilderStore((s) => s.removeSection);
   const addComponent = useBuilderStore((s) => s.addComponent);
   const selectedSectionId = useBuilderStore((s) => s.selectedSectionId);
+  const selectedColumnId = useBuilderStore((s) => s.selectedColumnId);
+  const selectedComponentId = useBuilderStore((s) => s.selectedComponentId);
   const selectSection = useBuilderStore((s) => s.selectSection);
+  const selectColumn = useBuilderStore((s) => s.selectColumn);
 
   const isSelected = selectedSectionId === section.id;
   const attrs = section.attributes || {};
+
+  const showSectionHover = isSectionHovered && !hoveredColumnId && !isSelected;
 
   return (
     <>
     <div
       className="group relative"
       onClick={() => selectSection(section.id)}
+      onMouseEnter={() => setIsSectionHovered(true)}
+      onMouseLeave={() => { setIsSectionHovered(false); setHoveredColumnId(null); }}
     >
-      {/* Highlight de seleção / hover */}
-      <div
-        className={`absolute inset-0 pointer-events-none transition-all z-10 ${isSelected && "ring-2 ring-blue-500"}`}
-      />
+      {/* Highlight de seleção / hover da seção */}
+      <div className={cn("absolute inset-0 pointer-events-none transition-all z-10", {
+        "ring-2 ring-blue-500": isSelected,
+        "ring-1 ring-blue-300": showSectionHover,
+      })}>
+        {showSectionHover && (
+          <span className="absolute top-0 left-0 bg-blue-400 text-white text-[9px] px-1 py-0.5 leading-none select-none">
+            Seção
+          </span>
+        )}
+      </div>
 
       {/* Toolbar da seção — topo direito, visível ao hover */}
       <ButtonGroup className={cn("absolute -left-12 top-[50%] translate-y-[-50%] z-20 border border-gray-200 bg-white rounded-full opacity-0", { "opacity-100": isSelected })} orientation="vertical">
@@ -74,7 +91,7 @@ export default function SectionItem({ section, isFirst, isLast }) {
         }}
       >
         <div
-          style={{ display: "grid", gridTemplateColumns: `repeat(${section.columnList.length}, 1fr)` }}
+          style={{ display: "grid", gridTemplateColumns: section.columnList.map((col) => col.attributes?.width || "1fr").join(" ") }}
         >
           {section.columnList.map((col) => {
             const colAttrs = col.attributes || {};
@@ -82,6 +99,8 @@ export default function SectionItem({ section, isFirst, isLast }) {
               colAttrs["vertical-align"] === "middle" ? "center" :
               colAttrs["vertical-align"] === "bottom" ? "flex-end" :
               "flex-start";
+            const isColSelected = selectedColumnId === col.id && !selectedComponentId;
+            const isColHovered = hoveredColumnId === col.id && !isColSelected;
             return (
             <div
               key={col.id}
@@ -93,7 +112,21 @@ export default function SectionItem({ section, isFirst, isLast }) {
                 padding: colAttrs.padding || undefined,
               }}
               className="relative"
+              onClick={(e) => { e.stopPropagation(); selectColumn(section.id, col.id); }}
+              onMouseEnter={() => setHoveredColumnId(col.id)}
+              onMouseLeave={() => setHoveredColumnId(null)}
             >
+              {/* Highlight de seleção / hover da coluna */}
+              <div className={cn("absolute inset-0 pointer-events-none z-10", {
+                "ring-2 ring-inset ring-teal-500": isColSelected,
+                "ring-1 ring-inset ring-teal-300": isColHovered,
+              })}>
+                {isColHovered && (
+                  <span className="absolute top-0 left-0 bg-teal-400 text-white text-[9px] px-1 py-0.5 leading-none select-none">
+                    Coluna
+                  </span>
+                )}
+              </div>
               {/* Componentes da coluna */}
               {col.components.map((comp, idx) => (
                 <ComponentItem

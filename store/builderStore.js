@@ -154,6 +154,13 @@ const useBuilderStore = create((set, get) => ({
           cellpadding: "4",
           cellspacing: "0",
         },
+        "mj-social": {
+          mode: "horizontal",
+          align: "center",
+          "font-size": "13px",
+          "icon-size": "30px",
+          padding: "10px 25px",
+        },
       };
       const newComponent = {
         id: crypto.randomUUID(),
@@ -166,6 +173,11 @@ const useBuilderStore = create((set, get) => ({
             ? "Clique aqui"
             : type === "mj-table"
             ? "<tr>\n  <th>Coluna 1</th>\n  <th>Coluna 2</th>\n  <th>Coluna 3</th>\n</tr>\n<tr>\n  <td>Dado 1</td>\n  <td>Dado 2</td>\n  <td>Dado 3</td>\n</tr>"
+            : type === "mj-social"
+            ? JSON.stringify([
+                { name: "facebook", href: "https://facebook.com", label: "Facebook" },
+                { name: "instagram", href: "https://instagram.com", label: "Instagram" },
+              ])
             : "",
       };
       return {
@@ -299,6 +311,9 @@ const useBuilderStore = create((set, get) => ({
   // --- Actions de seleção ---
   selectSection: (sectionId) =>
     set({ selectedSectionId: sectionId, selectedColumnId: null, selectedComponentId: null }),
+
+  selectColumn: (sectionId, columnId) =>
+    set({ selectedSectionId: sectionId, selectedColumnId: columnId, selectedComponentId: null }),
 
   selectComponent: (sectionId, columnId, componentId) =>
     set({ selectedSectionId: sectionId, selectedColumnId: columnId, selectedComponentId: componentId }),
