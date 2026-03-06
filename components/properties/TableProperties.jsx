@@ -1,12 +1,16 @@
-import { AlignCenter, AlignLeft, AlignRight } from "lucide-react";
-import { Button } from "../ui/button";
-import { ButtonGroup } from "../ui/button-group";
+import { AlignField } from "../fields/align-field";
+import { ColorField } from "../fields/color-field";
+import { SelectField } from "../fields/select-field";
+import { TextField } from "../fields/text-field";
 import { Field, FieldDescription, FieldLabel } from "../ui/field";
-import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 
 const sectionLabelCls = "text-[10px] font-semibold text-gray-400 uppercase tracking-wide";
+
+const TABLE_LAYOUT_OPTIONS = [
+  { value: "auto", label: "Auto" },
+  { value: "fixed", label: "Fixed" },
+];
 
 const DEFAULT_CONTENT = `<tr>
   <th>Coluna 1</th>
@@ -46,32 +50,10 @@ export default function TableProperties({ attrs, content, setAttr, setContent })
       {/* Borda */}
       <div className="space-y-2.5">
         <p className={sectionLabelCls}>Borda</p>
-        <Field>
-          <FieldLabel>Border</FieldLabel>
-          <Input
-            value={attrs.border || ""}
-            placeholder="ex: 1px solid #cccccc"
-            onChange={(e) => setAttr("border", e.target.value)}
-          />
-          <FieldDescription>Atalho completo: espessura, estilo e cor.</FieldDescription>
-        </Field>
+        <TextField label="Border" value={attrs.border} onChange={(v) => setAttr("border", v)} placeholder="ex: 1px solid #cccccc" description="Atalho completo: espessura, estilo e cor." />
         <div className="grid grid-cols-2 gap-2">
-          <Field>
-            <FieldLabel>Cell padding</FieldLabel>
-            <Input
-              value={attrs.cellpadding || ""}
-              placeholder="ex: 4"
-              onChange={(e) => setAttr("cellpadding", e.target.value)}
-            />
-          </Field>
-          <Field>
-            <FieldLabel>Cell spacing</FieldLabel>
-            <Input
-              value={attrs.cellspacing || ""}
-              placeholder="ex: 0"
-              onChange={(e) => setAttr("cellspacing", e.target.value)}
-            />
-          </Field>
+          <TextField label="Cell padding" value={attrs.cellpadding} onChange={(v) => setAttr("cellpadding", v)} placeholder="ex: 4" />
+          <TextField label="Cell spacing" value={attrs.cellspacing} onChange={(v) => setAttr("cellspacing", v)} placeholder="ex: 0" />
         </div>
       </div>
 
@@ -81,47 +63,11 @@ export default function TableProperties({ attrs, content, setAttr, setContent })
       <div className="space-y-2.5">
         <p className={sectionLabelCls}>Tipografia</p>
         <div className="grid grid-cols-2 gap-2">
-          <Field>
-            <FieldLabel>Tamanho</FieldLabel>
-            <Input
-              value={attrs["font-size"] || ""}
-              placeholder="ex: 14px"
-              onChange={(e) => setAttr("font-size", e.target.value)}
-            />
-          </Field>
-          <Field>
-            <FieldLabel>Line height</FieldLabel>
-            <Input
-              value={attrs["line-height"] || ""}
-              placeholder="ex: 1.5"
-              onChange={(e) => setAttr("line-height", e.target.value)}
-            />
-          </Field>
+          <TextField label="Tamanho" value={attrs["font-size"]} onChange={(v) => setAttr("font-size", v)} placeholder="ex: 14px" />
+          <TextField label="Line height" value={attrs["line-height"]} onChange={(v) => setAttr("line-height", v)} placeholder="ex: 1.5" />
         </div>
-        <Field>
-          <FieldLabel>Cor do texto</FieldLabel>
-          <div className="flex gap-1.5 items-center">
-            <input
-              type="color"
-              className="h-9 w-9 cursor-pointer rounded-md border border-input p-1 shrink-0"
-              value={attrs.color || "#000000"}
-              onChange={(e) => setAttr("color", e.target.value)}
-            />
-            <Input
-              value={attrs.color || ""}
-              placeholder="ex: #000000"
-              onChange={(e) => setAttr("color", e.target.value)}
-            />
-          </div>
-        </Field>
-        <Field>
-          <FieldLabel>Fonte</FieldLabel>
-          <Input
-            value={attrs["font-family"] || ""}
-            placeholder="ex: Arial, sans-serif"
-            onChange={(e) => setAttr("font-family", e.target.value)}
-          />
-        </Field>
+        <ColorField label="Cor do texto" value={attrs.color} onChange={(v) => setAttr("color", v)} placeholder="ex: #000000" />
+        <TextField label="Fonte" value={attrs["font-family"]} onChange={(v) => setAttr("font-family", v)} placeholder="ex: Arial, sans-serif" />
       </div>
 
       <hr className="border-gray-100" />
@@ -129,48 +75,9 @@ export default function TableProperties({ attrs, content, setAttr, setContent })
       {/* Layout */}
       <div className="space-y-2.5">
         <p className={sectionLabelCls}>Layout</p>
-        <Field>
-          <FieldLabel>Table layout</FieldLabel>
-          <Select
-            value={attrs["table-layout"] || "auto"}
-            onValueChange={(v) => setAttr("table-layout", v)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="auto">Auto</SelectItem>
-              <SelectItem value="fixed">Fixed</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field>
-          <FieldLabel>Padding</FieldLabel>
-          <Input
-            value={attrs.padding || ""}
-            placeholder="ex: 10px"
-            onChange={(e) => setAttr("padding", e.target.value)}
-          />
-        </Field>
-        <Field>
-          <FieldLabel>Alinhamento</FieldLabel>
-          <ButtonGroup>
-            {[
-              { v: "left", icon: <AlignLeft size={16} /> },
-              { v: "center", icon: <AlignCenter size={16} /> },
-              { v: "right", icon: <AlignRight size={16} /> },
-            ].map(({ v, icon }) => (
-              <Button
-                key={v}
-                variant={(attrs.align || "left") === v ? "default" : "outline"}
-                size="icon"
-                onClick={() => setAttr("align", v)}
-              >
-                {icon}
-              </Button>
-            ))}
-          </ButtonGroup>
-        </Field>
+        <SelectField label="Table layout" value={attrs["table-layout"] || "auto"} onChange={(v) => setAttr("table-layout", v)} options={TABLE_LAYOUT_OPTIONS} />
+        <TextField label="Padding" value={attrs.padding} onChange={(v) => setAttr("padding", v)} placeholder="ex: 10px" />
+        <AlignField label="Alinhamento" value={attrs.align} onChange={(v) => setAttr("align", v)} defaultValue="left" />
       </div>
     </div>
   );

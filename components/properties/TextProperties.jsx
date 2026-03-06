@@ -1,56 +1,33 @@
-import { AlignCenter, AlignLeft, AlignRight } from "lucide-react";
-import { Button } from "../ui/button";
-import { ButtonGroup } from "../ui/button-group";
-import { Field, FieldDescription, FieldLabel } from "../ui/field";
-import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { AlignField } from "../fields/align-field";
+import { ColorField } from "../fields/color-field";
+import { SelectField } from "../fields/select-field";
+import { TextField } from "../fields/text-field";
+import { Field, FieldLabel } from "../ui/field";
 import { Textarea } from "../ui/textarea";
 
-const labelCls = "block text-xs font-medium text-gray-500 mb-1";
 const sectionLabelCls = "text-[10px] font-semibold text-gray-400 uppercase tracking-wide";
 
-function ColorField({ label, value, onChange }) {
-  return (
-    <div>
-      <label className={labelCls}>{label}</label>
-      <div className="flex gap-1.5 items-center">
-        <input
-          type="color"
-          className="h-9 w-9 cursor-pointer rounded-md border border-input p-1 shrink-0"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-        <Input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      </div>
-    </div>
-  );
-}
+const FONT_WEIGHT_OPTIONS = [
+  { value: "normal", label: "Normal" },
+  { value: "300", label: "Light 300" },
+  { value: "500", label: "Medium 500" },
+  { value: "bold", label: "Bold" },
+  { value: "700", label: "Bold 700" },
+];
 
-function AlignButtons({ value, onChange }) {
-  return (
-    <ButtonGroup>
-      {[
-        { v: "left", title: "Alinhar à esquerda", icon: <AlignLeft size={16} /> },
-        { v: "center", title: "Alinhar ao centro", icon: <AlignCenter size={16} /> },
-        { v: "right", title: "Alinhar à direita", icon: <AlignRight size={16} /> },
-      ].map(({ v, title, icon }) => (
-        <Button
-          key={v}
-          variant={value === v ? "default" : "outline"}
-          size="icon"
-          onClick={() => onChange(v)}
-          aria-label={title}
-        >
-          {icon}
-        </Button>
-      ))}
-    </ButtonGroup>
-  );
-}
+const TEXT_DECORATION_OPTIONS = [
+  { value: "none", label: "None" },
+  { value: "underline", label: "Underline" },
+  { value: "overline", label: "Overline" },
+  { value: "line-through", label: "Line-through" },
+];
+
+const TEXT_TRANSFORM_OPTIONS = [
+  { value: "none", label: "None" },
+  { value: "capitalize", label: "Capitalize" },
+  { value: "uppercase", label: "Uppercase" },
+  { value: "lowercase", label: "Lowercase" },
+];
 
 /**
  * @param {{
@@ -79,54 +56,12 @@ export default function TextProperties({ attrs, content, setAttr, setContent }) 
       <div className="space-y-2.5">
         <p className={sectionLabelCls}>Tipografia</p>
         <div className="grid grid-cols-2 gap-2">
-          <Field>
-            <FieldLabel>Tamanho</FieldLabel>
-            <Input
-              value={attrs["font-size"] || ""}
-              placeholder="ex: 14px"
-              onChange={(e) => setAttr("font-size", e.target.value)}
-            />
-          </Field>
-          <Field>
-            <FieldLabel>Peso</FieldLabel>
-            <Select
-              value={attrs["font-weight"] || "normal"}
-              onValueChange={(v) => setAttr("font-weight", v)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="normal">Normal</SelectItem>
-                <SelectItem value="300">Light 300</SelectItem>
-                <SelectItem value="500">Medium 500</SelectItem>
-                <SelectItem value="bold">Bold</SelectItem>
-                <SelectItem value="700">Bold 700</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field>
-            <FieldLabel>Line height</FieldLabel>
-            <Input
-              value={attrs["line-height"] || ""}
-              placeholder="ex: 1.5"
-              onChange={(e) => setAttr("line-height", e.target.value)}
-            />
-          </Field>
+          <TextField label="Tamanho" value={attrs["font-size"]} onChange={(v) => setAttr("font-size", v)} placeholder="ex: 14px" />
+          <SelectField label="Peso" value={attrs["font-weight"] || "normal"} onChange={(v) => setAttr("font-weight", v)} options={FONT_WEIGHT_OPTIONS} />
+          <TextField label="Line height" value={attrs["line-height"]} onChange={(v) => setAttr("line-height", v)} placeholder="ex: 1.5" />
         </div>
-        <ColorField
-          label="Cor"
-          value={attrs.color || "#000000"}
-          onChange={(v) => setAttr("color", v)}
-        />
-        <Field>
-          <FieldLabel>Fonte</FieldLabel>
-          <Input
-            value={attrs["font-family"] || ""}
-            placeholder="ex: Arial, sans-serif"
-            onChange={(e) => setAttr("font-family", e.target.value)}
-          />
-        </Field>
+        <ColorField label="Cor" value={attrs.color} onChange={(v) => setAttr("color", v)} placeholder="ex: #000000" />
+        <TextField label="Fonte" value={attrs["font-family"]} onChange={(v) => setAttr("font-family", v)} placeholder="ex: Arial, sans-serif" />
       </div>
 
       <hr className="border-gray-100" />
@@ -135,40 +70,8 @@ export default function TextProperties({ attrs, content, setAttr, setContent }) 
       <div className="space-y-2.5">
         <p className={sectionLabelCls}>Decoração</p>
         <div className="grid grid-cols-2 gap-2">
-          <Field>
-            <FieldLabel>Text decoration</FieldLabel>
-            <Select
-              value={attrs["text-decoration"] || "none"}
-              onValueChange={(v) => setAttr("text-decoration", v)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                <SelectItem value="underline">Underline</SelectItem>
-                <SelectItem value="overline">Overline</SelectItem>
-                <SelectItem value="line-through">Line-through</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field>
-            <FieldLabel>Text transform</FieldLabel>
-            <Select
-              value={attrs["text-transform"] || "none"}
-              onValueChange={(v) => setAttr("text-transform", v)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                <SelectItem value="capitalize">Capitalize</SelectItem>
-                <SelectItem value="uppercase">Uppercase</SelectItem>
-                <SelectItem value="lowercase">Lowercase</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
+          <SelectField label="Text decoration" value={attrs["text-decoration"] || "none"} onChange={(v) => setAttr("text-decoration", v)} options={TEXT_DECORATION_OPTIONS} />
+          <SelectField label="Text transform" value={attrs["text-transform"] || "none"} onChange={(v) => setAttr("text-transform", v)} options={TEXT_TRANSFORM_OPTIONS} />
         </div>
       </div>
 
@@ -177,22 +80,14 @@ export default function TextProperties({ attrs, content, setAttr, setContent }) 
       {/* Layout */}
       <div className="space-y-2.5">
         <p className={sectionLabelCls}>Layout</p>
-        <Field>
-          <FieldLabel>Padding</FieldLabel>
-          <Input
-            value={attrs.padding || ""}
-            placeholder="ex: 16px"
-            onChange={(e) => setAttr("padding", e.target.value)}
-          />
-          <FieldDescription>Ex: 10px, 10px 5px, 10px 5px 15px, 10px 5px 15px 20px</FieldDescription>
-        </Field>
-        <Field>
-          <FieldLabel>Alinhamento</FieldLabel>
-          <AlignButtons
-            value={attrs.align || "left"}
-            onChange={(v) => setAttr("align", v)}
-          />
-        </Field>
+        <TextField
+          label="Padding"
+          value={attrs.padding}
+          onChange={(v) => setAttr("padding", v)}
+          placeholder="ex: 16px"
+          description="Ex: 10px, 10px 5px, 10px 5px 15px, 10px 5px 15px 20px"
+        />
+        <AlignField label="Alinhamento" value={attrs.align} onChange={(v) => setAttr("align", v)} defaultValue="left" />
       </div>
     </div>
   );

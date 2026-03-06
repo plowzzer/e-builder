@@ -9,11 +9,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import useBuilderStore from "../../store/builderStore";
+import { ColorField } from "../fields/color-field";
+import { SelectField } from "../fields/select-field";
+import { TextField } from "../fields/text-field";
 import ButtonProperties from "../properties/ButtonProperties";
 import DividerProperties from "../properties/DividerProperties";
 import ImageProperties from "../properties/ImageProperties";
@@ -21,8 +22,13 @@ import TableProperties from "../properties/TableProperties";
 import TextProperties from "../properties/TextProperties";
 import SocialProperties from "../properties/SocialProperties";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
-import { Field, FieldLabel } from "../ui/field";
 import GlobalConfigPanel from "./GlobalConfigPanel";
+
+const VERTICAL_ALIGN_OPTIONS = [
+  { value: "top", label: "Top" },
+  { value: "middle", label: "Middle" },
+  { value: "bottom", label: "Bottom" },
+];
 
 const TYPE_LABELS = {
   "mj-text": "Texto",
@@ -176,30 +182,8 @@ export default function PropertiesPanel() {
                 {/* Propriedades da seção */}
                 <div className="px-4 py-4 space-y-2.5">
                   <p className={sectionLabelCls}>Seção</p>
-                  <Field>
-                    <FieldLabel>Cor de fundo</FieldLabel>
-                    <div className="flex gap-1.5 items-center">
-                      <Input
-                        type="color"
-                        className="h-9 w-9 cursor-pointer rounded-md border border-input p-1 shrink-0"
-                        value={secAttrs["background-color"] || "#ffffff"}
-                        onChange={(e) => setSecAttr("background-color", e.target.value)}
-                      />
-                      <Input
-                        value={secAttrs["background-color"] || ""}
-                        placeholder="ex: #ffffff"
-                        onChange={(e) => setSecAttr("background-color", e.target.value)}
-                      />
-                    </div>
-                  </Field>
-                  <Field>
-                    <FieldLabel>Padding</FieldLabel>
-                    <Input
-                      value={secAttrs.padding || ""}
-                      placeholder="ex: 20px 0"
-                      onChange={(e) => setSecAttr("padding", e.target.value)}
-                    />
-                  </Field>
+                  <ColorField label="Cor de fundo" value={secAttrs["background-color"]} onChange={(v) => setSecAttr("background-color", v)} />
+                  <TextField label="Padding" value={secAttrs.padding} onChange={(v) => setSecAttr("padding", v)} placeholder="ex: 20px 0" />
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -212,55 +196,11 @@ export default function PropertiesPanel() {
                   <div className="px-4 py-4 space-y-2.5">
                     <p className={sectionLabelCls}>Coluna</p>
                     {section && section.columnList.length > 1 && (
-                      <Field>
-                        <FieldLabel>Largura</FieldLabel>
-                        <Input
-                          value={colAttrs.width || ""}
-                          placeholder="ex: 200px ou 30%"
-                          onChange={(e) => setColAttr("width", e.target.value)}
-                        />
-                      </Field>
+                      <TextField label="Largura" value={colAttrs.width} onChange={(v) => setColAttr("width", v)} placeholder="ex: 200px ou 30%" />
                     )}
-                    <Field>
-                      <FieldLabel>Alinhamento vertical</FieldLabel>
-                      <Select
-                        value={colAttrs["vertical-align"] || "top"}
-                        onValueChange={(v) => setColAttr("vertical-align", v)}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="top">Top</SelectItem>
-                          <SelectItem value="middle">Middle</SelectItem>
-                          <SelectItem value="bottom">Bottom</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                    <Field>
-                      <FieldLabel>Cor de fundo</FieldLabel>
-                      <div className="flex gap-1.5 items-center">
-                        <Input
-                          type="color"
-                          className="h-9 w-9 cursor-pointer rounded-md border border-input p-1 shrink-0"
-                          value={colAttrs["background-color"] || "#ffffff"}
-                          onChange={(e) => setColAttr("background-color", e.target.value)}
-                        />
-                        <Input
-                          value={colAttrs["background-color"] || ""}
-                          placeholder="ex: #ffffff"
-                          onChange={(e) => setColAttr("background-color", e.target.value)}
-                        />
-                      </div>
-                    </Field>
-                    <Field>
-                      <FieldLabel>Padding</FieldLabel>
-                      <Input
-                        value={colAttrs.padding || ""}
-                        placeholder="ex: 20px"
-                        onChange={(e) => setColAttr("padding", e.target.value)}
-                      />
-                    </Field>
+                    <SelectField label="Alinhamento vertical" value={colAttrs["vertical-align"] || "top"} onChange={(v) => setColAttr("vertical-align", v)} options={VERTICAL_ALIGN_OPTIONS} />
+                    <ColorField label="Cor de fundo" value={colAttrs["background-color"]} onChange={(v) => setColAttr("background-color", v)} />
+                    <TextField label="Padding" value={colAttrs.padding} onChange={(v) => setColAttr("padding", v)} placeholder="ex: 20px" />
                   </div>
                 </AccordionContent>
               </AccordionItem>

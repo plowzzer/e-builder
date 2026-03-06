@@ -1,54 +1,17 @@
-import { AlignCenter, AlignLeft, AlignRight } from "lucide-react";
-import { Button } from "../ui/button";
-import { ButtonGroup } from "../ui/button-group";
+import { AlignField } from "../fields/align-field";
+import { ColorField } from "../fields/color-field";
+import { SelectField } from "../fields/select-field";
+import { TextField } from "../fields/text-field";
+import { Field, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
-const labelCls = "block text-xs font-medium text-gray-500 mb-1";
 const sectionLabelCls = "text-[10px] font-semibold text-gray-400 uppercase tracking-wide";
 
-function ColorField({ label, value, onChange }) {
-  return (
-    <div>
-      <label className={labelCls}>{label}</label>
-      <div className="flex gap-1.5 items-center">
-        <input
-          type="color"
-          className="h-9 w-9 cursor-pointer rounded-md border border-input p-1 shrink-0"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-        <Input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      </div>
-    </div>
-  );
-}
-
-function AlignButtons({ value, onChange }) {
-  return (
-    <ButtonGroup>
-      {[
-        { v: "left", title: "Alinhar à esquerda", icon: <AlignLeft size={16} /> },
-        { v: "center", title: "Alinhar ao centro", icon: <AlignCenter size={16} /> },
-        { v: "right", title: "Alinhar à direita", icon: <AlignRight size={16} /> },
-      ].map(({ v, title, icon }) => (
-        <Button
-          key={v}
-          variant={value === v ? "default" : "outline"}
-          size="icon"
-          onClick={() => onChange(v)}
-          aria-label={title}
-        >
-          {icon}
-        </Button>
-      ))}
-    </ButtonGroup>
-  );
-}
+const FONT_WEIGHT_OPTIONS = [
+  { value: "normal", label: "Normal" },
+  { value: "bold", label: "Bold" },
+  { value: "700", label: "Bold 700" },
+];
 
 /**
  * @param {{
@@ -64,21 +27,11 @@ export default function ButtonProperties({ attrs, content, setAttr, setContent }
       {/* Conteúdo */}
       <div className="space-y-2.5">
         <p className={sectionLabelCls}>Conteúdo</p>
-        <div>
-          <label className={labelCls}>Texto do botão</label>
-          <Input
-            value={content || ""}
-            onChange={(e) => setContent(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className={labelCls}>Link (href)</label>
-          <Input
-            placeholder="https://..."
-            value={attrs.href || ""}
-            onChange={(e) => setAttr("href", e.target.value)}
-          />
-        </div>
+        <Field>
+          <FieldLabel>Texto do botão</FieldLabel>
+          <Input value={content || ""} onChange={(e) => setContent(e.target.value)} />
+        </Field>
+        <TextField label="Link (href)" value={attrs.href} onChange={(v) => setAttr("href", v)} placeholder="https://..." />
       </div>
 
       <hr className="border-gray-100" />
@@ -86,49 +39,12 @@ export default function ButtonProperties({ attrs, content, setAttr, setContent }
       {/* Estilo */}
       <div className="space-y-2.5">
         <p className={sectionLabelCls}>Estilo</p>
-        <ColorField
-          label="Cor de fundo"
-          value={attrs["background-color"] || "#4A90E2"}
-          onChange={(v) => setAttr("background-color", v)}
-        />
-        <ColorField
-          label="Cor do texto"
-          value={attrs.color || "#ffffff"}
-          onChange={(v) => setAttr("color", v)}
-        />
+        <ColorField label="Cor de fundo" value={attrs["background-color"]} onChange={(v) => setAttr("background-color", v)} placeholder="ex: #4A90E2" />
+        <ColorField label="Cor do texto" value={attrs.color} onChange={(v) => setAttr("color", v)} placeholder="ex: #ffffff" />
         <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className={labelCls}>Tamanho fonte</label>
-            <Input
-              value={attrs["font-size"] || ""}
-              placeholder="ex: 14px"
-              onChange={(e) => setAttr("font-size", e.target.value)}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Peso</label>
-            <Select
-              value={attrs["font-weight"] || "normal"}
-              onValueChange={(v) => setAttr("font-weight", v)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="normal">Normal</SelectItem>
-                <SelectItem value="bold">Bold</SelectItem>
-                <SelectItem value="700">Bold 700</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label className={labelCls}>Border radius</label>
-            <Input
-              value={attrs["border-radius"] || ""}
-              placeholder="ex: 4px"
-              onChange={(e) => setAttr("border-radius", e.target.value)}
-            />
-          </div>
+          <TextField label="Tamanho fonte" value={attrs["font-size"]} onChange={(v) => setAttr("font-size", v)} placeholder="ex: 14px" />
+          <SelectField label="Peso" value={attrs["font-weight"] || "normal"} onChange={(v) => setAttr("font-weight", v)} options={FONT_WEIGHT_OPTIONS} />
+          <TextField label="Border radius" value={attrs["border-radius"]} onChange={(v) => setAttr("border-radius", v)} placeholder="ex: 4px" />
         </div>
       </div>
 
@@ -138,30 +54,10 @@ export default function ButtonProperties({ attrs, content, setAttr, setContent }
       <div className="space-y-2.5">
         <p className={sectionLabelCls}>Layout</p>
         <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className={labelCls}>Padding externo</label>
-            <Input
-              value={attrs.padding || ""}
-              placeholder="ex: 10px 25px"
-              onChange={(e) => setAttr("padding", e.target.value)}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Padding interno</label>
-            <Input
-              value={attrs["inner-padding"] || ""}
-              placeholder="ex: 10px 25px"
-              onChange={(e) => setAttr("inner-padding", e.target.value)}
-            />
-          </div>
+          <TextField label="Padding externo" value={attrs.padding} onChange={(v) => setAttr("padding", v)} placeholder="ex: 10px 25px" />
+          <TextField label="Padding interno" value={attrs["inner-padding"]} onChange={(v) => setAttr("inner-padding", v)} placeholder="ex: 10px 25px" />
         </div>
-        <div>
-          <label className={labelCls}>Alinhamento</label>
-          <AlignButtons
-            value={attrs.align || "center"}
-            onChange={(v) => setAttr("align", v)}
-          />
-        </div>
+        <AlignField label="Alinhamento" value={attrs.align} onChange={(v) => setAttr("align", v)} defaultValue="center" />
       </div>
     </div>
   );

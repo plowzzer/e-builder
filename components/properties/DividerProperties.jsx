@@ -1,7 +1,12 @@
-import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { ColorField } from "../fields/color-field";
+import { SelectField } from "../fields/select-field";
+import { TextField } from "../fields/text-field";
 
-const labelCls = "block text-xs font-medium text-gray-500 mb-1";
+const BORDER_STYLE_OPTIONS = [
+  { value: "solid", label: "Solid" },
+  { value: "dashed", label: "Dashed" },
+  { value: "dotted", label: "Dotted" },
+];
 
 /**
  * @param {{
@@ -12,54 +17,10 @@ const labelCls = "block text-xs font-medium text-gray-500 mb-1";
 export default function DividerProperties({ attrs, setAttr }) {
   return (
     <div className="space-y-2.5">
-      <div>
-        <label className={labelCls}>Cor</label>
-        <div className="flex gap-1.5 items-center">
-          <input
-            type="color"
-            className="h-9 w-9 cursor-pointer rounded-md border border-input p-1 shrink-0"
-            value={attrs["border-color"] || "#cccccc"}
-            onChange={(e) => setAttr("border-color", e.target.value)}
-          />
-          <Input
-            type="text"
-            value={attrs["border-color"] || "#cccccc"}
-            onChange={(e) => setAttr("border-color", e.target.value)}
-          />
-        </div>
-      </div>
-      <div>
-        <label className={labelCls}>Estilo</label>
-        <Select
-          value={attrs["border-style"] || "solid"}
-          onValueChange={(v) => setAttr("border-style", v)}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="solid">Solid</SelectItem>
-            <SelectItem value="dashed">Dashed</SelectItem>
-            <SelectItem value="dotted">Dotted</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <label className={labelCls}>Espessura</label>
-        <Input
-          value={attrs["border-width"] || ""}
-          placeholder="ex: 1px"
-          onChange={(e) => setAttr("border-width", e.target.value)}
-        />
-      </div>
-      <div>
-        <label className={labelCls}>Padding</label>
-        <Input
-          value={attrs.padding || ""}
-          placeholder="ex: 10px 0"
-          onChange={(e) => setAttr("padding", e.target.value)}
-        />
-      </div>
+      <ColorField label="Cor" value={attrs["border-color"]} onChange={(v) => setAttr("border-color", v)} placeholder="ex: #cccccc" />
+      <SelectField label="Estilo" value={attrs["border-style"] || "solid"} onChange={(v) => setAttr("border-style", v)} options={BORDER_STYLE_OPTIONS} />
+      <TextField label="Espessura" value={attrs["border-width"]} onChange={(v) => setAttr("border-width", v)} placeholder="ex: 1px" />
+      <TextField label="Padding" value={attrs.padding} onChange={(v) => setAttr("padding", v)} placeholder="ex: 10px 0" />
     </div>
   );
 }

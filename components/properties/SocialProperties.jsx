@@ -1,8 +1,9 @@
-import { AlignCenter, AlignLeft, AlignRight, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
+import { AlignField } from "../fields/align-field";
+import { SelectField } from "../fields/select-field";
+import { TextField } from "../fields/text-field";
 import { Button } from "../ui/button";
-import { ButtonGroup } from "../ui/button-group";
-import { Field, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
@@ -128,66 +129,21 @@ export default function SocialProperties({ attrs, content, setAttr, setContent }
       {/* Layout */}
       <div className="space-y-2.5">
         <p className={sectionLabelCls}>Layout</p>
-        <Field>
-          <FieldLabel>Modo</FieldLabel>
-          <Select
-            value={attrs.mode || "horizontal"}
-            onValueChange={(v) => setAttr("mode", v)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="horizontal">Horizontal</SelectItem>
-              <SelectItem value="vertical">Vertical</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field>
-          <FieldLabel>Alinhamento</FieldLabel>
-          <ButtonGroup>
-            {[
-              { v: "left", icon: <AlignLeft size={16} /> },
-              { v: "center", icon: <AlignCenter size={16} /> },
-              { v: "right", icon: <AlignRight size={16} /> },
-            ].map(({ v, icon }) => (
-              <Button
-                key={v}
-                variant={(attrs.align || "center") === v ? "default" : "outline"}
-                size="icon"
-                onClick={() => setAttr("align", v)}
-              >
-                {icon}
-              </Button>
-            ))}
-          </ButtonGroup>
-        </Field>
+        <SelectField
+          label="Modo"
+          value={attrs.mode || "horizontal"}
+          onChange={(v) => setAttr("mode", v)}
+          options={[
+            { value: "horizontal", label: "Horizontal" },
+            { value: "vertical", label: "Vertical" },
+          ]}
+        />
+        <AlignField label="Alinhamento" value={attrs.align} onChange={(v) => setAttr("align", v)} defaultValue="center" />
         <div className="grid grid-cols-2 gap-2">
-          <Field>
-            <FieldLabel>Tamanho icone</FieldLabel>
-            <Input
-              value={attrs["icon-size"] || ""}
-              placeholder="ex: 30px"
-              onChange={(e) => setAttr("icon-size", e.target.value)}
-            />
-          </Field>
-          <Field>
-            <FieldLabel>Tamanho fonte</FieldLabel>
-            <Input
-              value={attrs["font-size"] || ""}
-              placeholder="ex: 13px"
-              onChange={(e) => setAttr("font-size", e.target.value)}
-            />
-          </Field>
+          <TextField label="Tamanho icone" value={attrs["icon-size"]} onChange={(v) => setAttr("icon-size", v)} placeholder="ex: 30px" />
+          <TextField label="Tamanho fonte" value={attrs["font-size"]} onChange={(v) => setAttr("font-size", v)} placeholder="ex: 13px" />
         </div>
-        <Field>
-          <FieldLabel>Padding</FieldLabel>
-          <Input
-            value={attrs.padding || ""}
-            placeholder="ex: 10px 25px"
-            onChange={(e) => setAttr("padding", e.target.value)}
-          />
-        </Field>
+        <TextField label="Padding" value={attrs.padding} onChange={(v) => setAttr("padding", v)} placeholder="ex: 10px 25px" />
       </div>
     </div>
   );
