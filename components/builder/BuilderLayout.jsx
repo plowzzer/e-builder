@@ -32,7 +32,7 @@ export default function BuilderLayout() {
     >
       {/* Painel esquerdo */}
       <ResizablePanel defaultSize="75%">
-        <div className="flex flex-col h-full flex-1 min-w-0 border-r border-gray-200 p-4 bg-gray-200">
+        <div className="flex flex-col h-full flex-1 min-w-0 border-r p-4">
           {/* Tabs + toggle viewport */}
           <div className="flex items-center justify-center mb-4 gap-3">
             <ButtonGroup>

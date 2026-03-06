@@ -130,9 +130,6 @@ export default function PropertiesPanel() {
   if (!selectedSectionId) {
     return (
       <div className="h-full flex flex-col overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-200 shrink-0">
-          <span className={sectionLabelCls}>Config global</span>
-        </div>
         <div className="flex-1 overflow-auto p-4">
           <GlobalConfigPanel />
         </div>

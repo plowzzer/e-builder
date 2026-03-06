@@ -1,5 +1,5 @@
 import { Columns2, Plus, Square } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useBuilderStore from "../../store/builderStore";
 import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -49,13 +49,33 @@ export default function SectionList({ viewport = "desktop" }) {
 
   const canvasWidth = viewport === "mobile" ? "375px" : (globalConfig.containerWidth || "600px");
 
+  // Injeta <link> tags no <head> para que as fontes customizadas renderizem no editor
+  useEffect(() => {
+    const fonts = globalConfig.fonts || [];
+    const ATTR = "data-mj-font";
+    // Remove links anteriores
+    document.querySelectorAll(`link[${ATTR}]`).forEach((el) => el.remove());
+    // Adiciona novos
+    fonts.forEach(({ href }) => {
+      if (!href) return;
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = href;
+      link.setAttribute(ATTR, "true");
+      document.head.appendChild(link);
+    });
+  }, [globalConfig.fonts]);
+
   return (
-    <main className="flex flex-col items-center min-h-full p-8 gap-4" onClick={clearSelection}>
+    <main
+      className="flex flex-col items-center min-h-full p-8 gap-4"
+      style={{ backgroundColor: globalConfig.backgroundColor || "#ffffff" }}
+      onClick={clearSelection}
+    >
       {/* Canvas centralizado — largura do email */}
       <div
         style={{
           width: canvasWidth,
-          backgroundColor: globalConfig.backgroundColor || "#ffffff",
           fontFamily: globalConfig.fontFamily || "Arial, sans-serif",
         }}
         onClick={(e) => e.stopPropagation()}

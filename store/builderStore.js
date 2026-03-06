@@ -28,6 +28,7 @@ const useBuilderStore = create((set, get) => ({
       backgroundColor: "#ffffff",
       fontFamily: "Arial, sans-serif",
       containerWidth: "600px",
+      fonts: [],
     },
     sections: [],
   },
