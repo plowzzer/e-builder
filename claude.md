@@ -48,12 +48,18 @@ email-builder/
 │   │   ├── FinalPreview.jsx             # Preview Final — iframe + HTML compilado lado a lado
 │   │   ├── PropertiesPanel.jsx          # Painel direito — elemento + coluna + seção (accordion)
 │   │   └── GlobalConfigPanel.jsx        # Configurações globais (mj-head) — default quando nada selecionado
+│   ├── fields/
+│   │   ├── text-field.jsx               # TextField — input de texto com label
+│   │   ├── color-field.jsx              # ColorField — seletor de cor + input sincronizados
+│   │   ├── align-field.jsx              # AlignField — botões esq/centro/dir
+│   │   └── select-field.jsx             # SelectField — dropdown com label
 │   └── properties/
 │       ├── TextProperties.jsx           # Props do mj-text
 │       ├── ImageProperties.jsx          # Props do mj-image
 │       ├── ButtonProperties.jsx         # Props do mj-button
 │       ├── DividerProperties.jsx        # Props do mj-divider
-│       └── TableProperties.jsx          # Props do mj-table
+│       ├── TableProperties.jsx          # Props do mj-table
+│       └── SocialProperties.jsx         # Props do mj-social
 ├── store/
 │   └── builderStore.js                  # Zustand — estado central do builder
 ├── lib/
@@ -98,9 +104,9 @@ email-builder/
             components: [
               {
                 id: String,
-                type: String,    // "mj-text" | "mj-image" | "mj-button" | "mj-divider" | "mj-table"
+                type: String,    // "mj-text" | "mj-image" | "mj-button" | "mj-divider" | "mj-table" | "mj-social"
                 attributes: Object,
-                content: String  // HTML interno — usado em mj-text, mj-button e mj-table
+                content: String  // HTML interno (mj-text, mj-button, mj-table) ou JSON array (mj-social)
               }
             ]
           }
@@ -148,6 +154,7 @@ email-builder/
 
   // --- Actions de seleção ---
   selectSection(sectionId),
+  selectColumn(sectionId, columnId),   // seleciona coluna sem componente
   selectComponent(sectionId, columnId, componentId),
   clearSelection(),
 
@@ -252,12 +259,18 @@ mj-mjml
 - `padding`, `align`, `table-layout`
 - `content` → HTML interno com `<tr>`, `<th>`, `<td>`
 
-**mj-column** (editável via PropertiesPanel ao selecionar elemento)
+**mj-social**
 
-- `vertical-align`, `background-color`
+- `mode` (horizontal | vertical), `align`, `icon-size`, `font-size`, `padding`
+- `content` → JSON array: `[{ name: "facebook", href: "https://...", label: "Facebook" }]`
+- Redes suportadas: facebook, twitter, instagram, linkedin, youtube, github, pinterest, medium, dribbble, vimeo, soundcloud, snapchat, tumblr, xing
+
+**mj-column** (editável ao clicar na coluna ou num componente dela)
+
+- `vertical-align`, `background-color`, `width` (px ou %, apenas em multi-coluna)
 - `padding`, `padding-top`, `padding-bottom`, `padding-left`, `padding-right`
 
-**mj-section** (editável via PropertiesPanel ao selecionar elemento)
+**mj-section** (editável ao clicar na seção ou em qualquer filho)
 
 - `background-color`, `padding`
 
@@ -265,15 +278,19 @@ mj-mjml
 
 ## PropertiesPanel — estrutura em accordion
 
-Ao selecionar um elemento, o painel direito exibe 3 seções em accordion:
+O painel direito adapta o conteúdo ao que está selecionado:
 
-1. **Elemento** — propriedades específicas do tipo (TextProperties, ImageProperties, etc.)
-2. **Coluna** — `vertical-align`, `background-color`, `padding` (e variantes top/bottom/left/right)
-3. **Seção** — `background-color`, `padding`
+| Seleção              | Accordion aberto | Itens visíveis              |
+| -------------------- | ---------------- | --------------------------- |
+| Nada                 | —                | GlobalConfigPanel           |
+| Só seção             | Seção            | Seção                       |
+| Só coluna            | Coluna           | Seção + Coluna              |
+| Componente           | Elemento         | Seção + Coluna + Elemento   |
 
-Quando nada está selecionado → exibe **GlobalConfigPanel** por padrão.
-
-- O accordion é **controlado**: ao clicar em um componente, a aba "Elemento" abre automaticamente via `useEffect` que observa `selectedComponentId`.
+- **Seção** inclui controles de mover ↑↓ e deletar (com AlertDialog), além de `background-color` e `padding`
+- **Coluna** inclui `vertical-align`, `background-color`, `padding` e `width` (só multi-coluna)
+- **Elemento** inclui propriedades específicas do tipo via `TextProperties`, `ImageProperties`, etc.
+- O accordion é **controlado**: abre automaticamente via `useEffect` que observa `selectedSectionId`, `selectedColumnId` e `selectedComponentId`
 - Inputs de texto usam `value={attr || ""}` + `placeholder` — nunca snappam para valores default ao serem limpos. Color pickers mantêm fallback de hex válido.
 
 ---
@@ -321,13 +338,16 @@ Quando nada está selecionado → exibe **GlobalConfigPanel** por padrão.
 - **Zustand** — usar subscriptions seletivas para evitar re-renders desnecessários
 - **IDs** — gerar com `crypto.randomUUID()` no cliente
 - **Preview Final** — nunca chamar automaticamente, sempre sob demanda do usuário
-- **Seleção** — clicar em um componente usa `e.stopPropagation()` para não propagar ao `SectionItem`
-- **PropertiesPanel** — ao selecionar elemento: mostra props do elemento + coluna + seção via accordion; sem seleção: mostra GlobalConfigPanel
-- **Deleção com confirmação** — `SectionItem` e `PropertiesPanel` usam `AlertDialog` antes de remover
-- **Highlight de seleção** — seção: `ring-2 ring-blue-500`; componente: `ring-2 ring-inset ring-orange-400`
+- **Seleção** — clicar em um componente usa `e.stopPropagation()` para não propagar à coluna/seção; clicar na coluna usa `e.stopPropagation()` para não propagar à seção
+- **Inspect-mode** — hover em seção mostra `ring-1 ring-blue-300` + badge "Seção"; hover em coluna mostra `ring-1 ring-inset ring-teal-300` + badge "Coluna"; clique seleciona o respectivo nível
+- **PropertiesPanel** — adapta ao nível selecionado: só seção → seção; só coluna → seção + coluna; componente → seção + coluna + elemento; nada → GlobalConfigPanel
+- **Deleção com confirmação** — `PropertiesPanel` usa `AlertDialog` antes de remover seções e componentes
+- **Highlight de seleção** — seção: `ring-2 ring-blue-500`; coluna (sem componente): `ring-2 ring-inset ring-teal-500`; componente: `ring-2 ring-inset ring-orange-400`
 - **Colunas com altura igual** — `SectionItem` usa CSS Grid para equalizar altura das colunas; cada coluna usa `display:flex; flex-direction:column` com `justifyContent` mapeado de `vertical-align` (`flex-start` / `center` / `flex-end`)
 - **Imagem no editor** — `width` da `mj-image` é respeitado como tamanho real; sem `width` definido usa tamanho natural limitado por `maxWidth:100%`
 - **Exportar .mjml** — `templateToMjml` já roda no cliente; usar `Blob` + `URL.createObjectURL` para download
+- **Field components** — usar sempre `TextField`, `ColorField`, `AlignField` ou `SelectField` de `components/fields/` nos painéis de propriedades; nunca duplicar esses padrões inline
+- **mj-social content** — armazenar como JSON string no campo `content`; parsear ao renderizar (`ComponentItem`) e ao exportar (`templateToMjml`)
 
 ---
 
@@ -338,6 +358,9 @@ Quando nada está selecionado → exibe **GlobalConfigPanel** por padrão.
 - [x] **Fase 3** — Painéis de propriedades: TextProperties, ImageProperties, ButtonProperties, DividerProperties, TableProperties, GlobalConfigPanel
 - [x] **Fase 4** — Importador de .mjml: parseMjml.js (client-side, DOMParser) + botão no header; FinalPreview extraído como componente com split iframe/HTML; mj-table adicionado como componente
 - [x] **Fase 4.5** — UX e refinamentos: toggle viewport Desktop/Mobile (Editor + Previews); padding em mj-column; accordion abre "Elemento" automaticamente ao selecionar componente; inputs sem snap para default; imagem respeita width configurado; exportar .mjml via download
+- [x] **Fase 4.6** — mj-social: SocialProperties, ComponentItem, templateToMjml, store defaults
+- [x] **Fase 4.7** — Inspect-mode: hover/click em seção e coluna mostra bordas e seleciona o nível; selectColumn no store; PropertiesPanel exibe props sem exigir componente selecionado; controles de seção (mover/deletar) movidos para o PropertiesPanel
+- [x] **Fase 4.8** — Field components: `components/fields/` com TextField, ColorField, AlignField, SelectField; todos os painéis de propriedades refatorados
 - [ ] **Fase 5** — Persistência: CRUD MongoDB, página de listagem, exportar HTML
 - [ ] **Fase 6** — Administrativo: pages/admin com gestão de templates
 

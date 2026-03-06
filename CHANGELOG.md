@@ -12,6 +12,39 @@ Todas as mudanças notáveis do projeto são documentadas aqui.
 
 ---
 
+## [0.5.0] — 2026-03-05
+
+### Adicionado
+- **Inspect-mode** no editor — hover em seção, coluna ou componente exibe borda colorida com badge identificador:
+  - Seção: `ring-1 ring-blue-300` + badge "Seção" no canto
+  - Coluna: `ring-1 ring-inset ring-teal-300` + badge "Coluna" no canto
+  - Clique na seção seleciona a seção; clique na coluna (fora de um componente) seleciona a coluna
+- **Seleção independente de seção e coluna** — PropertiesPanel agora exibe propriedades de seção/coluna sem exigir um componente selecionado:
+  - Só seção selecionada → accordion "Seção" abre automaticamente
+  - Só coluna selecionada → accordion "Coluna" abre automaticamente
+  - Componente selecionado → accordion "Elemento" abre automaticamente (comportamento anterior mantido)
+- `selectColumn(sectionId, columnId)` adicionado ao `builderStore`
+- Controles de mover/deletar seção movidos do `SectionItem` para o accordion "Seção" no `PropertiesPanel`; botões de mover respeitam `isSectionFirst`/`isSectionLast` calculados da posição na lista
+- Componente `mj-social` com suporte completo:
+  - Elementos armazenados como JSON array em `content` (`[{ name, href, label }]`)
+  - `SocialProperties` com lista editável de redes, formulário de adição e configurações globais (mode, align, icon-size, font-size, padding)
+  - `ComponentItem` renderiza círculos coloridos com abreviações + labels no editor
+  - `templateToMjml.js` gera `<mj-social>` com `<mj-social-element>` children
+  - Store inclui atributos padrão e dois elementos iniciais (Facebook + Instagram)
+- **`components/fields/`** — 4 componentes reutilizáveis de campos de propriedades:
+  - `TextField` — input de texto com label e `description` opcional
+  - `ColorField` — seletor de cor nativo + input de texto sincronizados
+  - `AlignField` — botões de alinhamento esq/centro/dir
+  - `SelectField` — dropdown com label e array de opções `{ value, label }`
+
+### Refatorado
+- Todos os painéis de propriedades migrados para os novos field components: `TextProperties`, `ImageProperties`, `ButtonProperties`, `DividerProperties`, `TableProperties`, `SocialProperties`, `PropertiesPanel`, `GlobalConfigPanel`
+- Labels inconsistentes (`<label className={labelCls}>`) normalizados para `<FieldLabel>` via componentes de campo
+- Função `AlignButtons` definida localmente em cada arquivo eliminada; `AlignField` compartilhado utilizado em todos os lugares
+- Padrão `ColorField` inline duplicado em 5+ arquivos substituído pelo componente compartilhado
+
+---
+
 ## [0.4.5] — 2026-03-05
 
 ### Adicionado

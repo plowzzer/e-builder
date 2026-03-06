@@ -1,4 +1,4 @@
-import { Columns2, Columns3, Plus, Square } from "lucide-react";
+import { Columns2, Plus, Square } from "lucide-react";
 import { useState } from "react";
 import useBuilderStore from "../../store/builderStore";
 import { Button } from "../ui/button";
@@ -8,7 +8,7 @@ import SectionItem from "./SectionItem";
 const COLUMN_OPTIONS = [
   { columns: 1, label: "1 coluna", icon: <Square size={16} /> },
   { columns: 2, label: "2 colunas", icon: <Columns2 size={16} /> },
-  { columns: 3, label: "3 colunas", icon: <Columns3 size={16} /> },
+  // { columns: 3, label: "3 colunas", icon: <Columns3 size={16} /> },
 ];
 
 function InsertSectionButton({ onAdd }) {
@@ -22,7 +22,7 @@ function InsertSectionButton({ onAdd }) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-[300px]'>
-        <div className="flex justify-between">
+        <div className="grid grid-cols-2 gap-2">
           {COLUMN_OPTIONS.map(({ columns, label, icon }) => (
             <Button
               key={columns}

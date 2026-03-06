@@ -39,13 +39,15 @@ export default function ButtonProperties({ attrs, content, setAttr, setContent }
       {/* Estilo */}
       <div className="space-y-2.5">
         <p className={sectionLabelCls}>Estilo</p>
-        <ColorField label="Cor de fundo" value={attrs["background-color"]} onChange={(v) => setAttr("background-color", v)} placeholder="ex: #4A90E2" />
-        <ColorField label="Cor do texto" value={attrs.color} onChange={(v) => setAttr("color", v)} placeholder="ex: #ffffff" />
+        <div className="grid grid-cols-2 gap-2">
+          <ColorField label="Cor de fundo" value={attrs["background-color"]} onChange={(v) => setAttr("background-color", v)} placeholder="ex: #4A90E2" />
+          <ColorField label="Cor do texto" value={attrs.color} onChange={(v) => setAttr("color", v)} placeholder="ex: #ffffff" />
+        </div>
         <div className="grid grid-cols-2 gap-2">
           <TextField label="Tamanho fonte" value={attrs["font-size"]} onChange={(v) => setAttr("font-size", v)} placeholder="ex: 14px" />
           <SelectField label="Peso" value={attrs["font-weight"] || "normal"} onChange={(v) => setAttr("font-weight", v)} options={FONT_WEIGHT_OPTIONS} />
-          <TextField label="Border radius" value={attrs["border-radius"]} onChange={(v) => setAttr("border-radius", v)} placeholder="ex: 4px" />
         </div>
+        <TextField label="Border radius" value={attrs["border-radius"]} onChange={(v) => setAttr("border-radius", v)} placeholder="ex: 4px" />
       </div>
 
       <hr className="border-gray-100" />
