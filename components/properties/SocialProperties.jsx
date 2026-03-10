@@ -1,27 +1,14 @@
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { AlignField } from "../fields/align-field";
+import { ColorField } from "../fields/color-field";
 import { SelectField } from "../fields/select-field";
 import { TextField } from "../fields/text-field";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const sectionLabelCls = "text-[10px] font-semibold text-gray-400 uppercase tracking-wide";
 
-const NETWORKS = [
-  "facebook", "twitter", "instagram", "linkedin", "youtube",
-  "github", "pinterest", "medium", "dribbble", "vimeo",
-  "soundcloud", "snapchat", "tumblr", "xing",
-];
-
-const NETWORK_LABELS = {
-  facebook: "Facebook", twitter: "Twitter", instagram: "Instagram",
-  linkedin: "LinkedIn", youtube: "YouTube", github: "GitHub",
-  pinterest: "Pinterest", medium: "Medium", dribbble: "Dribbble",
-  vimeo: "Vimeo", soundcloud: "SoundCloud", snapchat: "Snapchat",
-  tumblr: "Tumblr", xing: "Xing",
-};
+const EMPTY_ELEMENT = { name: "", href: "", label: "", src: "", backgroundColor: "", iconColor: "" };
 
 /**
  * @param {{
@@ -32,9 +19,7 @@ const NETWORK_LABELS = {
  * }} props
  */
 export default function SocialProperties({ attrs, content, setAttr, setContent }) {
-  const [newName, setNewName] = useState("facebook");
-  const [newHref, setNewHref] = useState("");
-  const [newLabel, setNewLabel] = useState("");
+  const [newEl, setNewEl] = useState(EMPTY_ELEMENT);
 
   let elements = [];
   try {
@@ -48,9 +33,9 @@ export default function SocialProperties({ attrs, content, setAttr, setContent }
   }
 
   function addElement() {
-    save([...elements, { name: newName, href: newHref, label: newLabel || NETWORK_LABELS[newName] || newName }]);
-    setNewHref("");
-    setNewLabel("");
+    if (!newEl.name.trim()) return;
+    save([...elements, { ...newEl, name: newEl.name.trim() }]);
+    setNewEl(EMPTY_ELEMENT);
   }
 
   function removeElement(idx) {
@@ -74,52 +59,21 @@ export default function SocialProperties({ attrs, content, setAttr, setContent }
         {elements.map((el, idx) => (
           <div key={idx} className="rounded-md border border-gray-200 p-2.5 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-600 capitalize">{el.name}</span>
-              <button
-                onClick={() => removeElement(idx)}
-                className="text-red-400 hover:text-red-600"
-              >
+              <span className="text-xs font-semibold text-gray-600">{el.name || "Sem nome"}</span>
+              <button onClick={() => removeElement(idx)} className="text-red-400 hover:text-red-600">
                 <Trash2 size={13} />
               </button>
             </div>
-            <Input
-              value={el.href || ""}
-              placeholder="https://..."
-              onChange={(e) => updateElement(idx, "href", e.target.value)}
-            />
-            <Input
-              value={el.label || ""}
-              placeholder="Label"
-              onChange={(e) => updateElement(idx, "label", e.target.value)}
-            />
+            <ElementFields el={el} onChange={(key, value) => updateElement(idx, key, value)} />
           </div>
         ))}
 
         {/* Adicionar nova rede */}
         <div className="rounded-md border border-dashed border-gray-300 p-2.5 space-y-2">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Adicionar</p>
-          <Select value={newName} onValueChange={setNewName}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {NETWORKS.map((n) => (
-                <SelectItem key={n} value={n}>{NETWORK_LABELS[n] || n}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input
-            value={newHref}
-            placeholder="https://..."
-            onChange={(e) => setNewHref(e.target.value)}
-          />
-          <Input
-            value={newLabel}
-            placeholder={`Label (ex: ${NETWORK_LABELS[newName]})`}
-            onChange={(e) => setNewLabel(e.target.value)}
-          />
-          <Button variant="outline" className="w-full" onClick={addElement}>
-            + Adicionar rede
+          <p className={sectionLabelCls}>Adicionar</p>
+          <ElementFields el={newEl} onChange={(key, value) => setNewEl((prev) => ({ ...prev, [key]: value }))} />
+          <Button variant="outline" size="sm" className="w-full gap-1" onClick={addElement}>
+            <Plus size={14} /> Adicionar rede
           </Button>
         </div>
       </div>
@@ -140,10 +94,28 @@ export default function SocialProperties({ attrs, content, setAttr, setContent }
         />
         <AlignField label="Alinhamento" value={attrs.align} onChange={(v) => setAttr("align", v)} defaultValue="center" />
         <div className="grid grid-cols-2 gap-2">
-          <TextField label="Tamanho icone" value={attrs["icon-size"]} onChange={(v) => setAttr("icon-size", v)} placeholder="ex: 30px" />
+          <TextField label="Tamanho ícone" value={attrs["icon-size"]} onChange={(v) => setAttr("icon-size", v)} placeholder="ex: 30px" />
           <TextField label="Tamanho fonte" value={attrs["font-size"]} onChange={(v) => setAttr("font-size", v)} placeholder="ex: 13px" />
         </div>
         <TextField label="Padding" value={attrs.padding} onChange={(v) => setAttr("padding", v)} placeholder="ex: 10px 25px" />
+      </div>
+    </div>
+  );
+}
+
+/** Campos individuais de um elemento social */
+function ElementFields({ el, onChange }) {
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-2">
+        <TextField label="Nome" value={el.name} onChange={(v) => onChange("name", v)} placeholder="ex: facebook" />
+        <TextField label="Label" value={el.label} onChange={(v) => onChange("label", v)} placeholder="ex: Facebook" />
+      </div>
+      <TextField label="Link (href)" value={el.href} onChange={(v) => onChange("href", v)} placeholder="https://..." />
+      <TextField label="Ícone (src)" value={el.src} onChange={(v) => onChange("src", v)} placeholder="https://...imagem.png" />
+      <div className="grid grid-cols-2 gap-2">
+        <ColorField label="Cor de fundo" value={el.backgroundColor} onChange={(v) => onChange("backgroundColor", v)} />
+        <ColorField label="Cor do ícone" value={el.iconColor} onChange={(v) => onChange("iconColor", v)} />
       </div>
     </div>
   );

@@ -118,13 +118,6 @@ function renderContent(component) {
       );
 
     case "mj-social": {
-      const NETWORK_COLORS = {
-        facebook: "#1877f2", twitter: "#1da1f2", instagram: "#e1306c",
-        linkedin: "#0077b5", youtube: "#ff0000", github: "#333",
-        pinterest: "#e60023", medium: "#00ab6c", dribbble: "#ea4c89",
-        vimeo: "#1ab7ea", soundcloud: "#ff5500", snapchat: "#f7f700",
-        tumblr: "#35465c", xing: "#026466",
-      };
       let elements = [];
       try { elements = component.content ? JSON.parse(component.content) : []; } catch {}
       const isHorizontal = (a.mode || "horizontal") === "horizontal";
@@ -133,30 +126,38 @@ function renderContent(component) {
           <div style={{ display: "inline-flex", flexDirection: isHorizontal ? "row" : "column", gap: "8px", alignItems: "center" }}>
             {elements.length === 0 ? (
               <span style={{ fontSize: "12px", color: "#aaa" }}>Nenhuma rede social</span>
-            ) : elements.map((el, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <div style={{
-                  width: a["icon-size"] || "30px",
-                  height: a["icon-size"] || "30px",
-                  borderRadius: "50%",
-                  background: NETWORK_COLORS[el.name] || "#888",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#fff",
-                  fontSize: "10px",
-                  fontWeight: "bold",
-                  flexShrink: 0,
-                }}>
-                  {el.name.slice(0, 2).toUpperCase()}
+            ) : elements.map((el, i) => {
+              const bgColor = el.backgroundColor || "#888";
+              const iconSize = a["icon-size"] || "30px";
+              return (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <div style={{
+                    width: iconSize,
+                    height: iconSize,
+                    borderRadius: "50%",
+                    background: bgColor,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                    flexShrink: 0,
+                  }}>
+                    {el.src ? (
+                      <img src={el.src} alt={el.name} style={{ width: "60%", height: "60%", objectFit: "contain" }} />
+                    ) : (
+                      <span style={{ color: el.iconColor || "#fff", fontSize: "10px", fontWeight: "bold" }}>
+                        {el.name.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  {el.label && (
+                    <span style={{ fontSize: a["font-size"] || "13px", color: el.iconColor || "#555" }}>
+                      {el.label}
+                    </span>
+                  )}
                 </div>
-                {el.label && (
-                  <span style={{ fontSize: a["font-size"] || "13px", color: NETWORK_COLORS[el.name] || "#888" }}>
-                    {el.label}
-                  </span>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       );
